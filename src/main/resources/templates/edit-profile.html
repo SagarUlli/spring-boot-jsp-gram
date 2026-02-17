@@ -5,49 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Profile</title>
 <style>
+/* Global box-sizing */
+* {
+	box-sizing: border-box;
+}
+
 body {
 	font-family: Arial, sans-serif;
 	background-color: #f4f4f4;
 	margin: 0;
-	padding: 0;
+	padding: 20px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
 }
 
+/* Form card */
 form {
-	background-color: white;
-	padding: 30px;
-	border-radius: 8px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	background-color: #ffffff;
+	padding: 30px 25px;
+	border-radius: 12px;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 	width: 100%;
 	max-width: 400px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	transition: transform 0.3s, box-shadow 0.3s;
 }
 
-input[type="file"], input[type="text"] {
-	width: 100%;
-	padding: 10px;
-	margin: 8px 0;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	box-sizing: border-box;
+form:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
-button {
-	width: 100%;
-	padding: 12px;
-	background-color: #4CAF50;
-	color: white;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-	font-size: 16px;
-	margin-top: 10px;
-}
-
-button:hover {
-	background-color: #45a049;
+/* Form groups */
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 label {
@@ -55,10 +52,60 @@ label {
 	color: #333;
 }
 
-.form-group {
-	margin-bottom: 20px;
+/* Inputs */
+input[type="text"], input[type="file"] {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #dddfe2;
+	border-radius: 8px;
+	font-size: 16px;
+	transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="text"]:focus, input[type="file"]:focus {
+	border-color: #4CAF50;
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+/* Button */
+button {
+	width: 100%;
+	padding: 12px;
+	background-color: #4CAF50;
+	color: #ffffff;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 16px;
+	font-weight: bold;
+	transition: background-color 0.3s, transform 0.1s;
+}
+
+button:hover {
+	background-color: #45a049;
+}
+
+button:active {
+	transform: scale(0.97);
+}
+
+/* Placeholder styling */
+input::placeholder {
+	color: #888;
+}
+
+/* Responsive tweaks */
+@media ( max-width : 480px) {
+	form {
+		padding: 25px 15px;
+	}
+	input[type="text"], input[type="file"], button {
+		font-size: 15px;
+	}
 }
 </style>
+
 </head>
 <body>
 	<form action="/update-profile" method="post"

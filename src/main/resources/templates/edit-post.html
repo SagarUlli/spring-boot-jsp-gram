@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit-Post</title>
 <style>
+/* Global box-sizing for consistent layout */
+* {
+	box-sizing: border-box;
+}
+
 body {
 	font-family: Arial, sans-serif;
 	background-color: #f0f2f5;
@@ -13,64 +18,114 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	min-height: 100vh;
 }
 
+/* Heading */
 h1 {
 	color: #1877f2;
 	margin-bottom: 30px;
+	font-size: 2rem;
+	text-align: center;
 }
 
+/* Container Card */
 .container {
-	background-color: white;
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background-color: #ffffff;
+	padding: 25px 20px;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 	width: 100%;
-	max-width: 400px;
+	max-width: 450px;
+	transition: transform 0.3s, box-shadow 0.3s;
 }
 
+.container:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* Form layout */
 form {
 	display: flex;
 	flex-direction: column;
-	gap: 15px;
+	gap: 20px;
 }
 
+/* Input styling */
 input[type="text"], input[type="file"] {
-	padding: 10px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	font-size: 14px;
-}
-
-img {
+	padding: 12px;
+	border: 1px solid #dddfe2;
 	border-radius: 8px;
-	margin-bottom: 10px;
+	font-size: 16px;
+	transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+input[type="text"]:focus, input[type="file"]:focus {
+	border-color: #1877f2;
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.2);
+}
+
+/* Image preview */
+img {
+	border-radius: 12px;
+	margin-bottom: 10px;
+	object-fit: cover;
+	height: 150px;
+	width: 150px;
+	align-self: center;
+}
+
+/* Form group */
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+label {
+	font-weight: bold;
+	color: #444;
+}
+
+/* Button styling */
 button {
 	background-color: #1877f2;
-	color: white;
-	padding: 10px 20px;
+	color: #ffffff;
+	padding: 12px;
 	border: none;
-	border-radius: 4px;
+	border-radius: 8px;
 	cursor: pointer;
 	font-size: 16px;
 	font-weight: bold;
+	transition: background-color 0.3s, transform 0.1s;
 }
 
 button:hover {
 	background-color: #166fe5;
 }
 
-.form-group {
-	display: flex;
-	flex-direction: column;
-	gap: 5px;
+button:active {
+	transform: scale(0.97);
 }
 
-label {
-	font-weight: bold;
-	color: #444;
+/* Placeholder styling */
+input::placeholder {
+	color: #888;
+}
+
+/* Responsive tweaks */
+@media ( max-width : 480px) {
+	.container {
+		padding: 20px 15px;
+	}
+	h1 {
+		font-size: 1.75rem;
+	}
+	input[type="text"], input[type="file"], button {
+		font-size: 15px;
+	}
 }
 </style>
 </head>

@@ -54,22 +54,22 @@ body {
 .nav-right {
 	display: flex;
 	align-items: center;
-	gap: 1.5rem;
+	gap: 1rem;
 }
 
 .nav-right button {
 	padding: 0.5rem 1rem;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
 	font-weight: 600;
-	background-color: var(--primary-color);
+	background: linear-gradient(45deg, #0095f6, #006ce0);
 	color: white;
-	transition: background-color 0.3s ease;
+	transition: all 0.3s ease;
 }
 
 .nav-right button:hover {
-	background-color: var(--secondary-color);
+	background: linear-gradient(45deg, #006ce0, #004ab0);
 }
 
 .message {
@@ -90,11 +90,11 @@ body {
 
 .profile-container {
 	max-width: 935px;
-	margin: 30px auto 0;
+	margin: 30px auto;
 	padding: 2rem;
 	background-color: white;
-	border-radius: 8px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	border-radius: 10px;
+	box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
 }
 
 .profile-header {
@@ -102,6 +102,7 @@ body {
 	grid-template-columns: 1fr 2fr;
 	gap: 2rem;
 	margin-bottom: 3rem;
+	align-items: center;
 	padding: 1rem;
 }
 
@@ -111,6 +112,11 @@ body {
 	border-radius: 50%;
 	object-fit: cover;
 	border: 3px solid var(--primary-color);
+	transition: transform 0.3s ease;
+}
+
+.profile-picture:hover {
+	transform: scale(1.05);
 }
 
 .profile-info {
@@ -122,6 +128,9 @@ body {
 .profile-info h1 {
 	font-size: 28px;
 	color: var(--secondary-color);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 }
 
 .profile-info p {
@@ -132,20 +141,22 @@ body {
 .profile-actions {
 	display: flex;
 	gap: 1rem;
+	flex-wrap: wrap;
 }
 
 .edit-profile-btn {
 	padding: 0.5rem 1rem;
-	background-color: var(--primary-color);
+	background: linear-gradient(45deg, #0095f6, #006ce0);
 	color: white;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
-	transition: background-color 0.3s ease;
+	font-weight: 600;
+	transition: all 0.3s ease;
 }
 
 .edit-profile-btn:hover {
-	background-color: var(--secondary-color);
+	background: linear-gradient(45deg, #006ce0, #004ab0);
 }
 
 .stats-container {
@@ -157,10 +168,12 @@ body {
 	margin-bottom: 2rem;
 	justify-content: center;
 	background-color: white;
+	flex-wrap: wrap;
 }
 
 .stat-item {
 	text-align: center;
+	flex: 1 1 100px;
 }
 
 .stat-item h3 {
@@ -176,21 +189,16 @@ body {
 
 .stat-item button {
 	padding: 0.5rem 1rem;
-	background-color: var(--primary-color);
+	background: linear-gradient(45deg, #0095f6, #006ce0);
 	color: white;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
-	transition: background-color 0.3s ease;
+	transition: all 0.3s ease;
 }
 
 .stat-item button:hover {
-	background-color: var(--secondary-color);
-}
-
-.stat-item a {
-	text-decoration: none;
-	color: inherit;
+	background: linear-gradient(45deg, #006ce0, #004ab0);
 }
 
 .posts-section {
@@ -208,18 +216,21 @@ body {
 	padding: 1rem;
 	border-radius: 8px;
 	margin-bottom: 1.5rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	gap: 0.5rem;
 }
 
 .post-item img {
 	border-radius: 8px;
 	object-fit: cover;
-	margin-bottom: 1rem;
+	width: 100%;
+	max-width: 400px;
 }
 
 .post-item span {
-	display: block;
-	margin-bottom: 0.5rem;
 	color: #666;
 }
 
@@ -227,14 +238,14 @@ body {
 	padding: 0.5rem 1rem;
 	margin-right: 0.5rem;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
 	font-weight: 600;
-	transition: background-color 0.3s ease;
+	transition: all 0.3s ease;
 }
 
 .post-item button:first-of-type {
-	background-color: var(--primary-color);
+	background: linear-gradient(45deg, #0095f6, #006ce0);
 	color: white;
 }
 
@@ -251,18 +262,18 @@ body {
 	display: block;
 	width: 100%;
 	padding: 1rem;
-	background-color: var(--primary-color);
+	background: linear-gradient(45deg, #0095f6, #006ce0);
 	color: white;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
 	font-weight: bold;
-	transition: background-color 0.3s ease;
+	transition: all 0.3s ease;
 	margin-top: 2rem;
 }
 
 .add-post-btn:hover {
-	background-color: var(--secondary-color);
+	background: linear-gradient(45deg, #006ce0, #004ab0);
 }
 
 @media ( max-width : 768px) {

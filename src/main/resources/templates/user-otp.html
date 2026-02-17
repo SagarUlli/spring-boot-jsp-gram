@@ -28,7 +28,6 @@ body {
 	transform: translateX(-50%);
 	width: calc(100% - 40px);
 	max-width: 400px;
-	background: rgba(255, 255, 255, 0.1);
 	padding: 12px 20px;
 	border-radius: 5px;
 	backdrop-filter: blur(5px);
@@ -39,7 +38,8 @@ body {
 	animation: fadeIn 0.5s forwards;
 }
 
-@keyframes fadeIn {from { opacity:0;
+@keyframes fadeIn {
+	from {opacity: 0;
 	transform: translate(-50%, -10px);
 }
 
@@ -55,7 +55,7 @@ to {
 	border-radius: 10px;
 	backdrop-filter: blur(5px);
 	border: 1px solid rgba(255, 255, 255, 0.1);
-	box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+	box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
 	width: 100%;
 	max-width: 400px;
 	text-align: center;
@@ -124,16 +124,15 @@ a:hover {
 	text-decoration: underline;
 }
 
-h3[style*="color: green"] {
-	color: #00ff88 !important;
+.success-message {
+	color: #00ff88;
 }
 
-h3[style*="color: red"] {
-	color: #ff4444 !important;
+.error-message {
+	color: #ff4444;
 }
 
-/* Responsive tweaks */
-@media ( max-width : 480px) {
+@media ( max-width :480px) {
 	.otp-container {
 		padding: 1.5rem 2rem;
 	}
@@ -145,26 +144,15 @@ h3[style*="color: red"] {
 		font-size: 1.75em;
 	}
 }
-
-.success-message {
-	color: #00ff88;
-}
-
-.error-message {
-	color: #ff4444;
-}
 </style>
 </head>
 <body>
 
-	<div class="message">
-		<div th:if="${session.pass}" class="message success-message"
-			th:text="${session.pass}"></div>
-		<div th:if="${session.fail}" class="message error-message"
-			th:text="${session.fail}"></div>
-
-		<th:block th:text="${@messageRemover.remove()}"></th:block>
-	</div>
+	<div th:if="${session.pass}" class="message success-message"
+		th:text="${session.pass}"></div>
+	<div th:if="${session.fail}" class="message error-message"
+		th:text="${session.fail}"></div>
+	<th:block th:text="${@messageRemover.remove()}"></th:block>
 
 	<div class="otp-container">
 		<h2>OTP Verification</h2>
@@ -172,7 +160,7 @@ h3[style*="color: red"] {
 		<form action="/verify-otp" method="post">
 			<input type="hidden" name="id" th:value="${id}"> <input
 				type="text" name="otp" class="otp-input" placeholder="Enter OTP"
-				required inputmode="numeric" pattern="\d*"> <br>
+				required inputmode="numeric" pattern="\d*" aria-label="OTP Code">
 			<button type="submit" class="verify-button">Verify OTP</button>
 		</form>
 		<a th:href="'/resend-otp/'+${id}">Re-send OTP</a>

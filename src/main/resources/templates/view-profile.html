@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="JspGram - Profile Page">
+<meta name="description" content="JspGram - View Profile">
 <title>JspGram - View Profile</title>
-
 <link rel="icon" type="image/png" href="/images/favicon.png">
-
 <style>
 :root {
 	--primary-color: #0095f6;
 	--secondary-color: #00376b;
 	--background-color: #fafafa;
 	--border-color: #dbdbdb;
+	--card-shadow: rgba(0, 0, 0, 0.08);
+	--hover-scale: 1.05;
 }
 
 * {
@@ -37,6 +37,7 @@ body {
 	width: 100%;
 	top: 0;
 	z-index: 1000;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .nav-content {
@@ -50,6 +51,11 @@ body {
 .logo img {
 	width: 103px;
 	height: auto;
+	transition: transform 0.3s ease;
+}
+
+.logo img:hover {
+	transform: scale(1.05);
 }
 
 .nav-right {
@@ -61,16 +67,19 @@ body {
 .nav-right button {
 	padding: 0.5rem 1rem;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
 	font-weight: 600;
 	background-color: var(--primary-color);
 	color: white;
-	transition: background-color 0.3s ease;
+	transition: all 0.3s ease;
+	box-shadow: 0 2px 6px var(--card-shadow);
 }
 
 .nav-right button:hover {
 	background-color: var(--secondary-color);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px var(--card-shadow);
 }
 
 .message {
@@ -81,11 +90,13 @@ body {
 .success-message {
 	color: #28a745;
 	margin-bottom: 0.5rem;
+	font-weight: 500;
 }
 
 .error-message {
 	color: #dc3545;
 	margin-bottom: 0.5rem;
+	font-weight: 500;
 }
 
 .profile-container {
@@ -93,8 +104,13 @@ body {
 	margin: 20px auto;
 	padding: 2rem;
 	background-color: white;
-	border-radius: 8px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	border-radius: 12px;
+	box-shadow: 0 4px 20px var(--card-shadow);
+	transition: transform 0.3s ease;
+}
+
+.profile-container:hover {
+	transform: translateY(-2px);
 }
 
 .profile-header {
@@ -110,18 +126,20 @@ body {
 	height: 150px;
 	border-radius: 50%;
 	object-fit: cover;
-	border: 3px solid var(--primary-color);
-	transition: transform 0.3s ease;
+	border: 4px solid var(--primary-color);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	box-shadow: 0 4px 12px var(--card-shadow);
 }
 
 .profile-picture:hover {
-	transform: scale(1.05);
+	transform: scale(var(--hover-scale));
+	box-shadow: 0 6px 18px var(--card-shadow);
 }
 
 .profile-info {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 0.8rem;
 }
 
 .profile-info h1 {
@@ -132,6 +150,7 @@ body {
 .profile-info p {
 	color: #444;
 	font-size: 16px;
+	word-wrap: break-word;
 }
 
 .profile-info button {
@@ -139,15 +158,18 @@ body {
 	background-color: var(--primary-color);
 	color: white;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	cursor: pointer;
 	font-weight: 600;
-	transition: background-color 0.3s ease;
+	transition: all 0.3s ease;
 	width: fit-content;
+	box-shadow: 0 2px 8px var(--card-shadow);
 }
 
 .profile-info button:hover {
 	background-color: var(--secondary-color);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px var(--card-shadow);
 }
 
 .stats-container {
@@ -158,6 +180,9 @@ body {
 	border-top: 1px solid var(--border-color);
 	border-bottom: 1px solid var(--border-color);
 	margin-bottom: 2rem;
+	background-color: #fff;
+	border-radius: 8px;
+	box-shadow: 0 2px 10px var(--card-shadow);
 }
 
 .stat-item {
@@ -167,6 +192,7 @@ body {
 .stat-item h3 {
 	color: #262626;
 	margin-bottom: 0.5rem;
+	font-size: 16px;
 }
 
 .stat-item span {
@@ -183,6 +209,8 @@ body {
 	font-size: 24px;
 	color: #262626;
 	margin-bottom: 1.5rem;
+	border-bottom: 1px solid var(--border-color);
+	padding-bottom: 0.5rem;
 }
 
 .post-grid {
@@ -193,14 +221,15 @@ body {
 
 .post-item {
 	background-color: white;
-	border-radius: 8px;
+	border-radius: 12px;
 	overflow: hidden;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	transition: transform 0.3s ease;
+	box-shadow: 0 4px 16px var(--card-shadow);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .post-item:hover {
 	transform: translateY(-3px);
+	box-shadow: 0 6px 20px var(--card-shadow);
 }
 
 .post-item img {
@@ -208,17 +237,20 @@ body {
 	aspect-ratio: 1/1;
 	object-fit: cover;
 	margin-bottom: 0.5rem;
+	border-bottom: 1px solid var(--border-color);
 }
 
 .post-item span {
 	display: block;
 	color: #262626;
-	margin-bottom: 0.25rem;
+	margin: 0.25rem 0;
+	font-size: 14px;
+	word-break: break-word;
 }
 
 .post-item span:last-child {
 	color: #8e8e8e;
-	font-size: 14px;
+	font-size: 13px;
 }
 
 @media ( max-width : 768px) {
@@ -228,8 +260,8 @@ body {
 	}
 	.profile-picture {
 		margin: 0 auto;
-		width: 120px;
-		height: 120px;
+		width: 130px;
+		height: 130px;
 	}
 	.profile-info button {
 		margin: 0 auto;
@@ -241,7 +273,6 @@ body {
 }
 </style>
 </head>
-
 <body>
 	<nav class="navbar">
 		<div class="nav-content">

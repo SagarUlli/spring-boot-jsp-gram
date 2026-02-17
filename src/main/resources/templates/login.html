@@ -29,38 +29,15 @@
 }
 
 body {
-	background-color: var(--background-color);
+	background: var(--background-color);
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
-	animation: gradientBg 15s ease infinite;
-	background-size: 400% 400%;
 }
 
-@
-keyframes gradientBg { 0% {
-	background-position: 0% 50%
-}
-
-50
-%
-{
-background-position
-:
-100%
-50%
-}
-100
-%
-{
-background-position
-:
-0%
-50%
-}
-}
+/* Logo */
 .logo {
 	margin-bottom: 2rem;
 	transform: scale(1);
@@ -77,23 +54,7 @@ background-position
 	filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }
 
-.login-container {
-	background-color: white;
-	padding: 2.5rem;
-	border-radius: 10px;
-	border: 1px solid rgba(219, 219, 219, 0.3);
-	width: 100%;
-	max-width: 400px;
-	margin-bottom: 1rem;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-	backdrop-filter: blur(10px);
-	transition: transform 0.3s ease;
-}
-
-.login-container:hover {
-	transform: translateY(-2px);
-}
-
+/* Messages */
 .message {
 	margin-bottom: 1.5rem;
 	text-align: center;
@@ -109,8 +70,7 @@ background-position
 	animation: fadeIn 0.5s ease;
 }
 
-@
-keyframes fadeIn {from { opacity:0;
+@keyframes fadeIn {from { opacity:0;
 	transform: translateY(-10px);
 }
 
@@ -120,6 +80,24 @@ to {
 }
 
 }
+
+/* Login Container */
+.login-container {
+	background-color: white;
+	padding: 2.5rem;
+	border-radius: 12px;
+	border: 1px solid rgba(219, 219, 219, 0.3);
+	width: 100%;
+	max-width: 400px;
+	margin-bottom: 1rem;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+	transition: transform 0.3s ease;
+}
+
+.login-container:hover {
+	transform: translateY(-2px);
+}
+
 .form-group {
 	margin-bottom: 1.2rem;
 }
@@ -140,6 +118,7 @@ to {
 	box-shadow: 0 0 0 2px rgba(64, 93, 230, 0.2);
 }
 
+/* Login Button */
 .login-button {
 	width: 100%;
 	padding: 0.8rem;
@@ -157,18 +136,19 @@ to {
 .login-button:hover {
 	background-position: right center;
 	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
+/* Register Container */
 .register-container {
 	background-color: white;
 	padding: 1.8rem;
-	border-radius: 10px;
+	border-radius: 12px;
 	border: 1px solid rgba(219, 219, 219, 0.3);
 	width: 100%;
 	max-width: 400px;
 	text-align: center;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
 }
 
 .register-link {
@@ -188,6 +168,7 @@ to {
 	text-decoration: underline;
 }
 
+/* Footer */
 .footer {
 	margin-top: 2rem;
 	color: #8e8e8e;
@@ -196,6 +177,7 @@ to {
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
+/* Responsive */
 @media ( max-width : 450px) {
 	.login-container, .register-container {
 		margin: 1rem;
