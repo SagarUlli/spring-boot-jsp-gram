@@ -14,6 +14,9 @@ import org.jsp.jsp_gram.helper.CloudinaryHelper;
 import org.jsp.jsp_gram.helper.EmailSender;
 import org.jsp.jsp_gram.repository.PostRepository;
 import org.jsp.jsp_gram.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -28,13 +31,20 @@ import jakarta.servlet.http.HttpSession;
 @Service
 public class UserService {
 
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
 	private static final String REDIRECT = "redirect:/";
 	private static final String AMOUNT = "amount";
 	private static final String CURRENCY = "currency";
 	private static final String LOGIN = "login";
 	private static final String PROFILE = "profile";
 	private static final String POSTS = "posts";
-	private static final String USERID = "userId";
+
+	@Value("${razorpay.key}")
+	private String razorpayKey;
+
+	@Value("${razorpay.secret}")
+	private String razorpaySecret;
 
 	private static final Random RANDOM = new Random();
 
@@ -51,12 +61,7 @@ public class UserService {
 		this.postRepository = postRepository;
 	}
 
-	/** Fetch current user by ID stored in session */
-	private User getSessionUser(HttpSession session) {
-		Integer userId = (Integer) session.getAttribute(USERID);
-		return userId == null ? null : userRepository.findById(userId).orElse(null);
-	}
-
+	/* ================= SESSION HANDLING ================= */
 	private String handleInvalidSession(HttpSession session) {
 		session.setAttribute("fail", "Invalid Session");
 		return REDIRECT + LOGIN;
@@ -66,6 +71,7 @@ public class UserService {
 		return RANDOM.nextInt(900000) + 100000;
 	}
 
+	/* ================= REGISTER ================= */
 	public String loadRegister(ModelMap map, User user) {
 		map.put("user", user);
 		return "register.html";
@@ -79,10 +85,10 @@ public class UserService {
 			result.rejectValue("email", "error.email", "Email already Exists");
 
 		if (userRepository.existsByMobile(user.getMobile()))
-			result.rejectValue("mobile", "error.mobile", "Mobile Number Already Exists");
+			result.rejectValue("mobile", "error.mobile", "Mobile Already Exists");
 
 		if (userRepository.existsByUsername(user.getUsername()))
-			result.rejectValue("username", "error.username", "Username already Taken");
+			result.rejectValue("username", "error.username", "Username Taken");
 
 		if (result.hasErrors())
 			return "register.html";
@@ -90,9 +96,11 @@ public class UserService {
 		user.setPassword(AES.encrypt(user.getPassword()));
 		int otp = generateOtp();
 		user.setOtp(otp);
-		emailSender.sendOtp(user.getEmail(), otp, user.getFirstname());
+		logger.info("OTP: {}", otp);
+
 		userRepository.save(user);
 		session.setAttribute("pass", "OTP Sent Success");
+
 		return REDIRECT + "otp/" + user.getId();
 	}
 
@@ -109,7 +117,8 @@ public class UserService {
 			session.setAttribute("pass", "Account Created Success");
 			return REDIRECT + LOGIN;
 		}
-		session.setAttribute("pass", "Invalid OTP");
+
+		session.setAttribute("fail", "Invalid OTP");
 		return REDIRECT + "otp/" + id;
 	}
 
@@ -122,9 +131,11 @@ public class UserService {
 		user.setOtp(generateOtp());
 		userRepository.save(user);
 		session.setAttribute("pass", "OTP Sent Success");
+
 		return REDIRECT + "otp/" + user.getId();
 	}
 
+	/* ================= LOGIN / LOGOUT ================= */
 	public String login(String username, String password, HttpSession session) {
 		User user = userRepository.findByUsername(username);
 		if (user == null) {
@@ -140,84 +151,104 @@ public class UserService {
 		if (!user.isVerified()) {
 			user.setOtp(generateOtp());
 			userRepository.save(user);
-			session.setAttribute("pass", "Otp Sent Success, First Verify Email to Login");
+			session.setAttribute("pass", "Verify Email First");
 			return REDIRECT + "otp/" + user.getId();
 		}
 
-		// store only user ID in session
-		session.setAttribute(USERID, user.getId());
+		session.setAttribute("user", user);
 		session.setAttribute("pass", "Login Success");
 		return REDIRECT + "home";
 	}
 
-	public String loadHome(HttpSession session, ModelMap map) {
-		User user = getSessionUser(session);
-		if (user == null)
-			return handleInvalidSession(session);
-
-		List<Post> posts = postRepository.findByUserIn(user.getFollowing());
-		if (!posts.isEmpty())
-			map.put(POSTS, posts);
-		return "home.html";
-	}
-
 	public String logout(HttpSession session) {
-		session.removeAttribute(USERID);
+		session.removeAttribute("user");
 		session.setAttribute("pass", "Logout Success");
 		return REDIRECT + LOGIN;
 	}
 
-	public String profile(HttpSession session, ModelMap map) {
-		User user = getSessionUser(session);
+	/* ================= HOME ================= */
+	public String loadHome(HttpSession session, ModelMap map) {
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
+		List<Post> posts = postRepository.findByUserIn(user.getFollowing());
+		map.put("user", user);
+		map.put(POSTS, posts);
+		return "home.html";
+	}
+
+	/* ================= PROFILE ================= */
+	public String profile(HttpSession session, ModelMap map) {
+		User user = (User) session.getAttribute("user");
+		if (user == null)
+			return handleInvalidSession(session);
+
+		user = userRepository.findById(user.getId()).orElse(null);
+		session.setAttribute("user", user);
+
 		List<Post> posts = postRepository.findByUser(user);
 		if (!posts.isEmpty())
-			map.put(POSTS, posts);
+			map.put("posts", posts);
+
+		map.put("user", user);
 		return "profile.html";
 	}
 
 	public String editProfile(HttpSession session) {
-		return getSessionUser(session) != null ? "edit-profile.html" : handleInvalidSession(session);
+		User user = (User) session.getAttribute("user");
+		if (user == null)
+			return handleInvalidSession(session);
+		return "edit-profile.html";
 	}
 
 	public String updateProfile(MultipartFile image, HttpSession session, String bio) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
 		user.setBio(bio);
-		if (image != null && !image.isEmpty())
+		if (image != null && !image.isEmpty()) {
 			user.setImageUrl(cloudinaryHelper.saveImage(image));
+		}
 		userRepository.save(user);
+		session.setAttribute("user", user);
 		return REDIRECT + PROFILE;
 	}
 
+	/* ================= POST HANDLING ================= */
 	public String loadAddPost(HttpSession session) {
-		return getSessionUser(session) != null ? "addpost.html" : handleInvalidSession(session);
+		User user = (User) session.getAttribute("user");
+		if (user == null)
+			return handleInvalidSession(session);
+		return "addpost.html";
 	}
 
 	public String addPost(Post post, HttpSession session) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
 		post.setUser(user);
 		post.setImageUrl(cloudinaryHelper.saveImage(post.getImage()));
 		postRepository.save(post);
+
 		session.setAttribute("pass", "Posted Success");
 		return REDIRECT + PROFILE;
 	}
 
 	public String deletePost(int id, HttpSession session) {
+		User user = (User) session.getAttribute("user");
+		if (user == null)
+			return handleInvalidSession(session);
+
 		postRepository.deleteById(id);
-		session.setAttribute("pass", "Post Delete Success");
+		session.setAttribute("pass", "Post Deleted");
 		return REDIRECT + PROFILE;
 	}
 
 	public String editPost(HttpSession session, int id, ModelMap map) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
@@ -226,7 +257,7 @@ public class UserService {
 	}
 
 	public String updatePost(Post post, HttpSession session) throws IOException {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
@@ -237,14 +268,16 @@ public class UserService {
 				post.setImageUrl(existing.getImageUrl());
 			}
 		});
+
 		post.setUser(user);
 		postRepository.save(post);
 		session.setAttribute("pass", "Updated Success");
 		return REDIRECT + PROFILE;
 	}
 
+	/* ================= FOLLOW / UNFOLLOW ================= */
 	public String viewSuggestions(ModelMap map, HttpSession session) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
@@ -261,7 +294,7 @@ public class UserService {
 	}
 
 	public String followUser(int id, HttpSession session) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
@@ -270,13 +303,14 @@ public class UserService {
 			followed.getFollowers().add(user);
 			userRepository.save(user);
 			userRepository.save(followed);
-			session.setAttribute(USERID, user.getId());
 		});
+
+		session.setAttribute("user", user);
 		return REDIRECT + PROFILE;
 	}
 
 	public String unfollow(HttpSession session, int id) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
@@ -285,57 +319,46 @@ public class UserService {
 			toUnfollow.getFollowers().remove(user);
 			userRepository.save(user);
 			userRepository.save(toUnfollow);
-			session.setAttribute(USERID, user.getId());
 		});
+
+		session.setAttribute("user", user);
 		return REDIRECT + PROFILE;
 	}
 
 	public String getFollowers(HttpSession session, ModelMap map) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
-		List<User> followers = user.getFollowers();
-		if (followers.isEmpty()) {
-			session.setAttribute("fail", "No Followers");
-			return REDIRECT + PROFILE;
-		}
-
-		map.put("followers", followers);
+		map.put("followers", user.getFollowers());
 		return "followers.html";
 	}
 
 	public String getFollowing(HttpSession session, ModelMap map) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
-		List<User> following = user.getFollowing();
-		if (following.isEmpty()) {
-			session.setAttribute("fail", "Not Following Anyone");
-			return REDIRECT + PROFILE;
-		}
-
-		map.put("following", following);
+		map.put("following", user.getFollowing());
 		return "following.html";
 	}
 
 	public String viewProfile(int id, HttpSession session, ModelMap map) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
 		userRepository.findById(id).ifPresent(profileUser -> {
 			List<Post> posts = postRepository.findByUser(profileUser);
-			if (!posts.isEmpty())
-				map.put(POSTS, posts);
+			map.put(POSTS, posts);
 			map.put("user", profileUser);
 		});
 		return "view-profile.html";
 	}
 
+	/* ================= LIKE / COMMENT ================= */
 	public String likePost(int id, HttpSession session) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
@@ -344,11 +367,12 @@ public class UserService {
 				post.getLikedUsers().add(user);
 			postRepository.save(post);
 		});
+
 		return REDIRECT + "home";
 	}
 
 	public String dislikePost(int id, HttpSession session) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
@@ -356,11 +380,12 @@ public class UserService {
 			post.getLikedUsers().removeIf(u -> u.getId() == user.getId());
 			postRepository.save(post);
 		});
+
 		return REDIRECT + "home";
 	}
 
 	public String loadCommentPage(HttpSession session, int id, ModelMap map) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
@@ -369,7 +394,7 @@ public class UserService {
 	}
 
 	public String comment(HttpSession session, int id, String comment) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
@@ -384,18 +409,20 @@ public class UserService {
 		return REDIRECT + "home";
 	}
 
+	/* ================= PRIME ================= */
 	public String prime(HttpSession session, ModelMap map) throws RazorpayException {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
-		RazorpayClient client = new RazorpayClient("rzp_test_6Lg2WKKGqBxoM2", "dVaKTcvZ8bMdDAPSuLGBkzUa");
+		RazorpayClient client = new RazorpayClient(razorpayKey, razorpaySecret);
 		JSONObject object = new JSONObject();
 		object.put(AMOUNT, 19900);
 		object.put(CURRENCY, "INR");
+
 		Order order = client.orders.create(object);
 
-		map.put("key", "rzp_test_6Lg2WKKGqBxoM2");
+		map.put("key", razorpayKey);
 		map.put(AMOUNT, order.get(AMOUNT));
 		map.put(CURRENCY, order.get(CURRENCY));
 		map.put("orderId", order.get("id"));
@@ -405,13 +432,14 @@ public class UserService {
 	}
 
 	public String prime(HttpSession session) {
-		User user = getSessionUser(session);
+		User user = (User) session.getAttribute("user");
 		if (user == null)
 			return handleInvalidSession(session);
 
 		user.setPrime(true);
 		userRepository.save(user);
-		session.setAttribute(USERID, user.getId());
+		session.setAttribute("user", user);
+
 		return REDIRECT + PROFILE;
 	}
 }

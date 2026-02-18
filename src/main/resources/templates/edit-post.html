@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Edit-Post</title>
+<title>Edit Post</title>
 <style>
-/* Global box-sizing for consistent layout */
 * {
 	box-sizing: border-box;
 }
 
 body {
 	font-family: Arial, sans-serif;
-	background-color: #f0f2f5;
+	background: #f0f2f5;
 	margin: 0;
 	padding: 20px;
 	display: flex;
@@ -21,7 +20,6 @@ body {
 	min-height: 100vh;
 }
 
-/* Heading */
 h1 {
 	color: #1877f2;
 	margin-bottom: 30px;
@@ -29,9 +27,8 @@ h1 {
 	text-align: center;
 }
 
-/* Container Card */
 .container {
-	background-color: #ffffff;
+	background: #fff;
 	padding: 25px 20px;
 	border-radius: 12px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -45,14 +42,12 @@ h1 {
 	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
-/* Form layout */
 form {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
 }
 
-/* Input styling */
 input[type="text"], input[type="file"] {
 	padding: 12px;
 	border: 1px solid #dddfe2;
@@ -61,13 +56,12 @@ input[type="text"], input[type="file"] {
 	transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-input[type="text"]:focus, input[type="file"]:focus {
+input:focus {
 	border-color: #1877f2;
 	outline: none;
 	box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.2);
 }
 
-/* Image preview */
 img {
 	border-radius: 12px;
 	margin-bottom: 10px;
@@ -77,7 +71,6 @@ img {
 	align-self: center;
 }
 
-/* Form group */
 .form-group {
 	display: flex;
 	flex-direction: column;
@@ -89,10 +82,9 @@ label {
 	color: #444;
 }
 
-/* Button styling */
 button {
-	background-color: #1877f2;
-	color: #ffffff;
+	background: #1877f2;
+	color: #fff;
 	padding: 12px;
 	border: none;
 	border-radius: 8px;
@@ -103,27 +95,25 @@ button {
 }
 
 button:hover {
-	background-color: #166fe5;
+	background: #166fe5;
 }
 
 button:active {
 	transform: scale(0.97);
 }
 
-/* Placeholder styling */
 input::placeholder {
 	color: #888;
 }
 
-/* Responsive tweaks */
-@media ( max-width : 480px) {
+@media ( max-width :480px) {
 	.container {
 		padding: 20px 15px;
 	}
 	h1 {
 		font-size: 1.75rem;
 	}
-	input[type="text"], input[type="file"], button {
+	input, button {
 		font-size: 15px;
 	}
 }
@@ -132,13 +122,13 @@ input::placeholder {
 <body>
 	<h1>Update Post</h1>
 	<div class="container">
-		<form action="/update-post" method="post"
+		<form th:action="@{/update-post}" method="post"
 			enctype="multipart/form-data">
 			<input type="hidden" th:value="${post.id}" name="id"> <img
-				th:src="${post.imageUrl}" height="150px" width="150px">
+				th:src="${post.imageUrl}" alt="Post Image">
 			<div class="form-group">
-				<label>Image (Leave Blank if Don't want to change)</label> <input
-					type="file" name="image">
+				<label>Image (Leave Blank if no change)</label> <input type="file"
+					name="image">
 			</div>
 			<div class="form-group">
 				<label>Caption</label> <input type="text" th:value="${post.caption}"

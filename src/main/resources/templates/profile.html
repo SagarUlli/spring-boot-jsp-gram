@@ -313,7 +313,7 @@ body {
 		<h3 class="error-message" th:text="${session.fail}"></h3>
 		<th:block th:text="${@messageRemover.remove()}"></th:block>
 	</div>
-	<main class="profile-container">
+	<main class="profile-container" th:if="${session.user != null}">
 		<section class="profile-header">
 			<img th:if="${session.user.imageUrl==null}"
 				src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"

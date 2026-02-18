@@ -20,12 +20,14 @@ import jakarta.validation.Valid;
 
 @Controller
 public class AppController {
+
 	private final UserService service;
 
 	public AppController(UserService service) {
 		this.service = service;
 	}
 
+	/* ================= LOGIN / REGISTER ================= */
 	@GetMapping({ "/", "/login" })
 	public String loadLogin() {
 		return "login.html";
@@ -62,16 +64,18 @@ public class AppController {
 		return service.login(username, password, session);
 	}
 
-	@GetMapping("/home")
-	public String loadHome(HttpSession session, ModelMap map) {
-		return service.loadHome(session, map);
-	}
-
 	@GetMapping("/logout")
 	public String logout(HttpSession session) {
 		return service.logout(session);
 	}
 
+	/* ================= HOME ================= */
+	@GetMapping("/home")
+	public String loadHome(HttpSession session, ModelMap map) {
+		return service.loadHome(session, map);
+	}
+
+	/* ================= PROFILE ================= */
 	@GetMapping("/profile")
 	public String loadProfile(HttpSession session, ModelMap map) {
 		return service.profile(session, map);
@@ -87,6 +91,7 @@ public class AppController {
 		return service.updateProfile(image, session, bio);
 	}
 
+	/* ================= POSTS ================= */
 	@GetMapping("/addpost")
 	public String loadAddPost(HttpSession session) {
 		return service.loadAddPost(session);
@@ -102,7 +107,7 @@ public class AppController {
 		return service.deletePost(id, session);
 	}
 
-	@GetMapping("/edit-post/{id}")
+	@GetMapping("/edit/{id}")
 	public String editPost(HttpSession session, @PathVariable int id, ModelMap map) {
 		return service.editPost(session, id, map);
 	}
@@ -112,6 +117,7 @@ public class AppController {
 		return service.updatePost(post, session);
 	}
 
+	/* ================= FOLLOW / SUGGESTIONS ================= */
 	@GetMapping("/suggestions")
 	public String suggestions(ModelMap map, HttpSession session) {
 		return service.viewSuggestions(map, session);
@@ -120,6 +126,11 @@ public class AppController {
 	@GetMapping("/follow/{id}")
 	public String follow(@PathVariable int id, HttpSession session) {
 		return service.followUser(id, session);
+	}
+
+	@GetMapping("/unfollow/{id}")
+	public String unfollow(HttpSession session, @PathVariable int id) {
+		return service.unfollow(session, id);
 	}
 
 	@GetMapping("/followers")
@@ -132,16 +143,12 @@ public class AppController {
 		return service.getFollowing(session, map);
 	}
 
-	@GetMapping("/unfollow/{id}")
-	public String unfollow(HttpSession session, @PathVariable int id) {
-		return service.unfollow(session, id);
-	}
-
 	@GetMapping("/view-profile/{id}")
 	public String viewProfile(@PathVariable int id, HttpSession session, ModelMap map) {
 		return service.viewProfile(id, session, map);
 	}
 
+	/* ================= LIKE / COMMENT ================= */
 	@GetMapping("/like/{id}")
 	public String likePost(@PathVariable int id, HttpSession session) {
 		return service.likePost(id, session);
@@ -162,6 +169,7 @@ public class AppController {
 		return service.comment(session, id, comment);
 	}
 
+	/* ================= PRIME ================= */
 	@GetMapping("/prime")
 	public String prime(HttpSession session, ModelMap map) throws RazorpayException {
 		return service.prime(session, map);
@@ -171,5 +179,4 @@ public class AppController {
 	public String prime(HttpSession session) throws RazorpayException {
 		return service.prime(session);
 	}
-
 }
