@@ -1,5 +1,5 @@
-# Use OpenJDK 17 slim image (bullseye variant)
-FROM openjdk:17-jdk-slim-bullseye
+# Use OpenJDK 17 slim image
+FROM openjdk:17-slim
 
 # Set working directory
 WORKDIR /app
@@ -13,11 +13,11 @@ COPY src ./src
 # Make Maven wrapper executable
 RUN chmod +x mvnw
 
-# Build the project (skip tests)
+# Build the project (skip tests for speed)
 RUN ./mvnw clean package -DskipTests
 
-# Expose the same port your app uses
+# Expose port (Render sets PORT environment variable)
 EXPOSE 8080
 
-# Run the executable jar
+# Run the Spring Boot executable jar
 CMD ["java", "-jar", "target/jsp-gram-0.0.1-SNAPSHOT.jar"]
