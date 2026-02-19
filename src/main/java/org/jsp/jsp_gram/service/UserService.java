@@ -11,11 +11,8 @@ import org.jsp.jsp_gram.dto.Post;
 import org.jsp.jsp_gram.dto.User;
 import org.jsp.jsp_gram.helper.AES;
 import org.jsp.jsp_gram.helper.CloudinaryHelper;
-import org.jsp.jsp_gram.helper.EmailSender;
 import org.jsp.jsp_gram.repository.PostRepository;
 import org.jsp.jsp_gram.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
@@ -27,11 +24,13 @@ import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class UserService {
-
-	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 	private static final String REDIRECT = "redirect:/";
 	private static final String AMOUNT = "amount";
@@ -49,17 +48,9 @@ public class UserService {
 	private static final Random RANDOM = new Random();
 
 	private final UserRepository userRepository;
-	private final EmailSender emailSender;
+//	private final EmailSender emailSender;
 	private final CloudinaryHelper cloudinaryHelper;
 	private final PostRepository postRepository;
-
-	public UserService(UserRepository userRepository, EmailSender emailSender, CloudinaryHelper cloudinaryHelper,
-			PostRepository postRepository) {
-		this.userRepository = userRepository;
-		this.emailSender = emailSender;
-		this.cloudinaryHelper = cloudinaryHelper;
-		this.postRepository = postRepository;
-	}
 
 	/* ================= SESSION HANDLING ================= */
 	private String handleInvalidSession(HttpSession session) {
@@ -96,7 +87,7 @@ public class UserService {
 		user.setPassword(AES.encrypt(user.getPassword()));
 		int otp = generateOtp();
 		user.setOtp(otp);
-		logger.info("OTP: {}", otp);
+		log.info("OTP: {}", otp);
 
 		userRepository.save(user);
 		session.setAttribute("pass", "OTP Sent Success");
@@ -189,7 +180,7 @@ public class UserService {
 
 		List<Post> posts = postRepository.findByUser(user);
 		if (!posts.isEmpty())
-			map.put("posts", posts);
+			map.put(POSTS, posts);
 
 		map.put("user", user);
 		return "profile.html";

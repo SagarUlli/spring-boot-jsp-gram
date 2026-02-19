@@ -17,15 +17,13 @@ import com.razorpay.RazorpayException;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Controller
+@RequiredArgsConstructor
 public class AppController {
 
 	private final UserService service;
-
-	public AppController(UserService service) {
-		this.service = service;
-	}
 
 	/* ================= LOGIN / REGISTER ================= */
 	@GetMapping({ "/", "/login" })
