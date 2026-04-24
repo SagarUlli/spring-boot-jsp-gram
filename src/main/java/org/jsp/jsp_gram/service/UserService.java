@@ -11,6 +11,7 @@ import org.jsp.jsp_gram.dto.Post;
 import org.jsp.jsp_gram.dto.User;
 import org.jsp.jsp_gram.helper.AES;
 import org.jsp.jsp_gram.helper.CloudinaryHelper;
+import org.jsp.jsp_gram.helper.EmailSender;
 import org.jsp.jsp_gram.repository.PostRepository;
 import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,7 +49,7 @@ public class UserService {
 	private static final Random RANDOM = new Random();
 
 	private final UserRepository userRepository;
-//	private final EmailSender emailSender;
+	private final EmailSender emailSender;
 	private final CloudinaryHelper cloudinaryHelper;
 	private final PostRepository postRepository;
 
@@ -87,8 +88,9 @@ public class UserService {
 		user.setPassword(AES.encrypt(user.getPassword()));
 		int otp = generateOtp();
 		user.setOtp(otp);
-		log.info("OTP: {}", otp);
 
+		emailSender.sendOtp(user.getEmail(), otp, user.getUsername());
+		
 		userRepository.save(user);
 		session.setAttribute("pass", "OTP Sent Success");
 
