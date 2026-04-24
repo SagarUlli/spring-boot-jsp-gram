@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Following</title>
+<style>
+/* Global box-sizing */
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f4f4;
+	margin: 0;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	min-height: 100vh;
+}
+
+/* Heading */
+h1 {
+	color: #333;
+	margin-bottom: 30px;
+	text-align: center;
+	font-size: 2rem;
+}
+
+/* Table styling */
+table {
+	background-color: #ffffff;
+	border-collapse: collapse;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+	width: 80%;
+	max-width: 800px;
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+td {
+	padding: 15px;
+	text-align: center;
+	border-bottom: 1px solid #dddfe2;
+	transition: background-color 0.3s;
+}
+
+/* Remove border for last row */
+tr:last-child td {
+	border-bottom: none;
+}
+
+/* Row hover effect */
+tr:hover td {
+	background-color: #f9fafb;
+}
+
+/* Profile picture */
+img.profile-picture {
+	height: 100px;
+	width: 100px;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 2px solid #dddfe2;
+	transition: transform 0.3s, border-color 0.3s;
+}
+
+img.profile-picture:hover {
+	transform: scale(1.05);
+	border-color: #1877f2;
+}
+
+/* Buttons */
+button {
+	background-color: #4CAF50;
+	color: white;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 14px;
+	transition: background-color 0.3s, transform 0.1s;
+}
+
+button:hover {
+	background-color: #45a049;
+}
+
+button:active {
+	transform: scale(0.97);
+}
+
+/* Links */
+a {
+	text-decoration: none;
+}
+
+/* Username styling */
+td:nth-child(2) {
+	font-weight: bold;
+	color: #333;
+}
+
+/* Responsive tweaks */
+@media ( max-width : 600px) {
+	table {
+		width: 100%;
+	}
+	td {
+		padding: 10px;
+		font-size: 14px;
+	}
+	img.profile-picture {
+		height: 70px;
+		width: 70px;
+	}
+	button {
+		padding: 8px 15px;
+		font-size: 13px;
+	}
+}
+</style>
+</head>
+<body>
+	<h1>Following</h1>
+
+	<table>
+		<tr th:each="user:${following}">
+			<td><img th:if="${user.imageUrl==null}"
+				src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
+				alt="Profile Picture" class="profile-picture"> <img
+				th:if="${user.imageUrl}" th:src="${user.imageUrl}"
+				alt="Profile Picture" class="profile-picture"></td>
+			<td th:text="${user.username}"></td>
+			<td><a th:href="'/view-profile/'+${user.id}"><button>View
+						Profile</button></a></td>
+			<td><a th:if="${!user.isFollowing()}"
+				th:href="'/follow/'+${user.id}"><button>Follow</button></a> <a
+				th:if="${user.isFollowing()}" th:href="'/unfollow/'+${user.id}"><button>Un-Follow</button></a>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
