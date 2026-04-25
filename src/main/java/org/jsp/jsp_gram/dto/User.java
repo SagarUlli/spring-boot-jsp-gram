@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,13 +38,13 @@ public class User {
 	private boolean prime;
 
 	@JsonIgnore
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_following", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "following_id"), uniqueConstraints = @UniqueConstraint(columnNames = {
 			"user_id", "following_id" }))
 	private List<User> following;
 
 	@JsonIgnore
-	@ManyToMany(mappedBy = "following")
+	@ManyToMany(mappedBy = "following", fetch = FetchType.EAGER)
 	private List<User> followers;
 
 	/**
