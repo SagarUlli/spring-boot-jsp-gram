@@ -90,7 +90,7 @@ public class UserService {
 		user.setOtp(otp);
 
 		emailSender.sendOtp(user.getEmail(), otp, user.getUsername());
-		
+
 		userRepository.save(user);
 		session.setAttribute("pass", "OTP Sent Success");
 
@@ -161,9 +161,11 @@ public class UserService {
 
 	/* ================= HOME ================= */
 	public String loadHome(HttpSession session, ModelMap map) {
-		User user = (User) session.getAttribute("user");
-		if (user == null)
+		User sessionUser = (User) session.getAttribute("user");
+		if (sessionUser == null)
 			return handleInvalidSession(session);
+
+		User user = userRepository.findById(sessionUser.getId()).orElse(null);
 
 		List<Post> posts = postRepository.findByUserIn(user.getFollowing());
 		map.put("user", user);
@@ -408,12 +410,17 @@ public class UserService {
 		if (user == null)
 			return handleInvalidSession(session);
 
+		System.out.println("RAZORPAY KEY = " + razorpayKey);
+		System.out.println("RAZORPAY SECRET = " + razorpaySecret);
+
 		RazorpayClient client = new RazorpayClient(razorpayKey, razorpaySecret);
 		JSONObject object = new JSONObject();
 		object.put(AMOUNT, 19900);
 		object.put(CURRENCY, "INR");
 
 		Order order = client.orders.create(object);
+
+		System.out.println("ORDER = " + order.toString());
 
 		map.put("key", razorpayKey);
 		map.put(AMOUNT, order.get(AMOUNT));
