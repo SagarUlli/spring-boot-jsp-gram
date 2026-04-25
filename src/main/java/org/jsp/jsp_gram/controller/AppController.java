@@ -28,7 +28,7 @@ public class AppController {
 	/* ================= LOGIN / REGISTER ================= */
 	@GetMapping({ "/", "/login" })
 	public String loadLogin() {
-		return "login.html";
+		return "login";
 	}
 
 	@GetMapping("/register")
@@ -44,7 +44,7 @@ public class AppController {
 	@GetMapping("/otp/{id}")
 	public String loadOtpPage(@PathVariable int id, ModelMap map) {
 		map.put("id", id);
-		return "user-otp.html";
+		return "user-otp";
 	}
 
 	@PostMapping("/verify-otp")

@@ -86,12 +86,14 @@ public class UserService {
 			return "register.html";
 
 		user.setPassword(AES.encrypt(user.getPassword()));
+
 		int otp = generateOtp();
 		user.setOtp(otp);
 
 		emailSender.sendOtp(user.getEmail(), otp, user.getUsername());
 
 		userRepository.save(user);
+
 		session.setAttribute("pass", "OTP Sent Success");
 
 		return REDIRECT + "otp/" + user.getId();
