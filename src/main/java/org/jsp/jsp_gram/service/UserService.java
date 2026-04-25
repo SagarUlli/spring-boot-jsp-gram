@@ -90,7 +90,12 @@ public class UserService {
 		int otp = generateOtp();
 		user.setOtp(otp);
 
-		emailSender.sendOtp(user.getEmail(), otp, user.getUsername());
+		try {
+			emailSender.sendOtp(user.getEmail(), otp, user.getUsername());
+		} catch (Exception e) {
+			session.setAttribute("fail", "Failed to send OTP");
+			return REDIRECT + "register";
+		}
 
 		userRepository.save(user);
 

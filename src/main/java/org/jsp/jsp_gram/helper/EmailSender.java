@@ -17,9 +17,10 @@ public class EmailSender {
 	private final TemplateEngine engine;
 
 	public void sendOtp(String to, int otp, String name) {
-		MimeMessage message = sender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message);
 		try {
+			MimeMessage message = sender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
 			helper.setFrom("sagarulli5@gmail.com", "JSP Gram Application");
 			helper.setTo(to);
 			helper.setSubject("Verify Email through OTP");
@@ -27,10 +28,15 @@ public class EmailSender {
 			Context context = new Context();
 			context.setVariable("name", name);
 			context.setVariable("otp", otp);
+
 			String body = engine.process("otp-template", context);
 			helper.setText(body, true);
+
+			sender.send(message);
+
 		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Email sending failed");
 		}
-		sender.send(message);
 	}
 }
