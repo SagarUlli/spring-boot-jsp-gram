@@ -12,7 +12,7 @@ import com.cloudinary.utils.ObjectUtils;
 
 @Component
 public class CloudinaryHelper {
-	@Value("${CLOUDINARY_URL}")
+	@Value("${cloudinary.url}")
 	String url;
 
 	public String saveImage(MultipartFile file) {
