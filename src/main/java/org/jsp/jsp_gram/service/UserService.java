@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.razorpay.Order;
@@ -110,18 +109,29 @@ public class UserService {
 		return REDIRECT + "otp/" + user.getId();
 	}
 
-	public String verifyOtp(@RequestParam int id, @RequestParam int otp, HttpSession session) {
-		User user = userRepository.findById(id).orElse(null);
+	public String verifyOtp(int id, String otp, HttpSession session) {
 
+		User user = userRepository.findById(id).orElse(null);
 		if (user == null)
 			return REDIRECT + LOGIN;
 
-		if (user.getOtp() == null || user.getOtpGeneratedTime() == null) {
-			session.setAttribute("fail", "OTP expired. Please resend OTP.");
+		int enteredOtp;
+		try {
+			enteredOtp = Integer.parseInt(otp.trim());
+		} catch (Exception e) {
+			session.setAttribute("fail", "Invalid OTP format");
 			return REDIRECT + "otp/" + id;
 		}
 
-		if (Objects.equals(user.getOtp(), otp)) {
+		if (user.getOtp() == null || user.getOtpGeneratedTime() == null
+				|| user.getOtpGeneratedTime().isBefore(LocalDateTime.now().minusMinutes(5))
+				|| !Objects.equals(user.getOtp(), enteredOtp)) {
+
+			session.setAttribute("fail", "Invalid or expired OTP");
+			return REDIRECT + "otp/" + id;
+		}
+
+		if (Objects.equals(user.getOtp(), enteredOtp)) {
 			user.setVerified(true);
 			user.setOtp(null);
 			user.setOtpGeneratedTime(null);

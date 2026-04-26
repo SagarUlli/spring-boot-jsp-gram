@@ -48,8 +48,8 @@ public class AppController {
 	}
 
 	@PostMapping("/verify-otp")
-	public String verifyOtp(@RequestParam int id, @RequestParam int otp, HttpSession session) {
-		return service.verifyOtp(id, otp, session);
+	public String verifyOtp(@RequestParam int id, @RequestParam String otp, HttpSession session) {
+		return service.verifyOtp(id, otp.trim(), session);
 	}
 
 	@GetMapping("/resend-otp/{id}")
