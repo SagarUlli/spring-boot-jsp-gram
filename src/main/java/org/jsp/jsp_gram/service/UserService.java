@@ -105,9 +105,12 @@ public class UserService {
 	}
 
 	public String verifyOtp(int id, int otp, HttpSession session) {
+
 		Optional<User> optUser = userRepository.findById(id);
-		if (optUser.isEmpty())
+		if (optUser.isEmpty()) {
+			session.setAttribute("fail", "User not found");
 			return REDIRECT + LOGIN;
+		}
 
 		User user = optUser.get();
 
@@ -116,17 +119,17 @@ public class UserService {
 			return REDIRECT + "otp/" + id;
 		}
 
-		if (user.getOtp() == otp) {
-			user.setVerified(true);
-			user.setOtp(0);
-			userRepository.save(user);
-
-			session.setAttribute("pass", "Account Verified Successfully");
-			return REDIRECT + LOGIN;
+		if (user.getOtp() != otp) {
+			session.setAttribute("fail", "Invalid OTP");
+			return REDIRECT + "otp/" + id;
 		}
 
-		session.setAttribute("fail", "Invalid OTP");
-		return REDIRECT + "otp/" + id;
+		user.setVerified(true);
+		user.setOtp(0);
+		userRepository.save(user);
+
+		session.setAttribute("pass", "Account Verified Successfully");
+		return REDIRECT + LOGIN;
 	}
 
 	public String resendOtp(int id, HttpSession session) {
