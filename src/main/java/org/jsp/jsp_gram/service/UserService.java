@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.razorpay.Order;
@@ -109,14 +110,13 @@ public class UserService {
 		return REDIRECT + "otp/" + user.getId();
 	}
 
-	public String verifyOtp(int id, int otp, HttpSession session) {
+	public String verifyOtp(@RequestParam int id, @RequestParam int otp, HttpSession session) {
 		User user = userRepository.findById(id).orElse(null);
 
 		if (user == null)
 			return REDIRECT + LOGIN;
 
-		if (user.getOtp() == null || user.getOtpGeneratedTime() == null
-				|| user.getOtpGeneratedTime().isBefore(LocalDateTime.now().minusMinutes(5))) {
+		if (user.getOtp() == null || user.getOtpGeneratedTime() == null) {
 			session.setAttribute("fail", "OTP expired. Please resend OTP.");
 			return REDIRECT + "otp/" + id;
 		}
