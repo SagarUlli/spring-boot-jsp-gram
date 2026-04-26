@@ -1,5 +1,6 @@
 package org.jsp.jsp_gram.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -31,29 +32,30 @@ public class User {
 	@Transient
 	private String confirmpassword;
 	private String gender;
-	private int otp;
+	private Integer otp;
 	private boolean verified;
 	private String bio;
 	private String imageUrl;
 	private boolean prime;
+	private LocalDateTime otpGeneratedTime;
 
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_following", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "following_id"), uniqueConstraints = @UniqueConstraint(columnNames = {
 			"user_id", "following_id" }))
-	private List<User> following;
+	private List<User> following = new java.util.ArrayList<>();
 
 	@JsonIgnore
 	@ManyToMany(mappedBy = "following", fetch = FetchType.EAGER)
-	private List<User> followers;
+	private List<User> followers = new java.util.ArrayList<>();
 
 	/**
 	 * Check if this user is followed by another user
 	 */
 	public boolean isFollowedBy(User other) {
-		if (other == null)
+		if (other == null || other.getFollowing() == null)
 			return false;
-
+		
 		for (User u : other.getFollowing()) {
 			if (u.getId() == this.id) {
 				return true;

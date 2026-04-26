@@ -1,7 +1,9 @@
 package org.jsp.jsp_gram.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
@@ -88,7 +90,10 @@ public class UserService {
 		user.setPassword(AES.encrypt(user.getPassword()));
 
 		int otp = generateOtp();
+
 		user.setOtp(otp);
+		user.setOtpGeneratedTime(LocalDateTime.now());
+		user.setVerified(false);
 
 		try {
 			emailSender.sendOtp(user.getEmail(), otp, user.getUsername());
@@ -105,31 +110,29 @@ public class UserService {
 	}
 
 	public String verifyOtp(int id, int otp, HttpSession session) {
+		User user = userRepository.findById(id).orElse(null);
 
-		Optional<User> optUser = userRepository.findById(id);
-		if (optUser.isEmpty()) {
-			session.setAttribute("fail", "User not found");
+		if (user == null)
 			return REDIRECT + LOGIN;
-		}
 
-		User user = optUser.get();
-
-		if (user.getOtp() == 0) {
+		if (user.getOtp() == null || user.getOtpGeneratedTime() == null
+				|| user.getOtpGeneratedTime().isBefore(LocalDateTime.now().minusMinutes(5))) {
 			session.setAttribute("fail", "OTP expired. Please resend OTP.");
 			return REDIRECT + "otp/" + id;
 		}
 
-		if (user.getOtp() != otp) {
-			session.setAttribute("fail", "Invalid OTP");
-			return REDIRECT + "otp/" + id;
+		if (Objects.equals(user.getOtp(), otp)) {
+			user.setVerified(true);
+			user.setOtp(null);
+			user.setOtpGeneratedTime(null);
+			userRepository.save(user);
+
+			session.setAttribute("pass", "Account Verified Successfully");
+			return REDIRECT + LOGIN;
 		}
 
-		user.setVerified(true);
-		user.setOtp(0);
-		userRepository.save(user);
-
-		session.setAttribute("pass", "Account Verified Successfully");
-		return REDIRECT + LOGIN;
+		session.setAttribute("fail", "Invalid OTP");
+		return REDIRECT + "otp/" + id;
 	}
 
 	public String resendOtp(int id, HttpSession session) {
@@ -138,8 +141,12 @@ public class UserService {
 			return REDIRECT + LOGIN;
 
 		User user = optUser.get();
+
 		user.setOtp(generateOtp());
+		user.setOtpGeneratedTime(LocalDateTime.now());
+		user.setVerified(false);
 		userRepository.save(user);
+
 		session.setAttribute("pass", "OTP Sent Success");
 
 		return REDIRECT + "otp/" + user.getId();
@@ -160,6 +167,8 @@ public class UserService {
 
 		if (!user.isVerified()) {
 			user.setOtp(generateOtp());
+			user.setOtpGeneratedTime(LocalDateTime.now());
+			user.setVerified(false);
 			userRepository.save(user);
 			session.setAttribute("pass", "Verify Email First");
 			return REDIRECT + "otp/" + user.getId();
@@ -184,7 +193,12 @@ public class UserService {
 
 		User user = userRepository.findById(sessionUser.getId()).orElse(null);
 
-		List<Post> posts = postRepository.findByUserIn(user.getFollowing());
+		if (user == null)
+			return handleInvalidSession(session);
+
+		List<Post> posts = postRepository
+				.findByUserIn(user.getFollowing() == null ? java.util.Collections.emptyList() : user.getFollowing());
+
 		map.put("user", user);
 		map.put(POSTS, posts);
 		return "home.html";
@@ -220,9 +234,13 @@ public class UserService {
 			return handleInvalidSession(session);
 
 		user.setBio(bio);
-		if (image != null && !image.isEmpty()) {
+
+		if (image == null || image.isEmpty()) {
+			// no crash, just skip update
+		} else {
 			user.setImageUrl(cloudinaryHelper.saveImage(image));
 		}
+
 		userRepository.save(user);
 		session.setAttribute("user", user);
 		return REDIRECT + PROFILE;
@@ -242,6 +260,12 @@ public class UserService {
 			return handleInvalidSession(session);
 
 		post.setUser(user);
+
+		if (post.getImage() == null || post.getImage().isEmpty()) {
+			session.setAttribute("fail", "Image is required");
+			return REDIRECT + PROFILE;
+		}
+
 		post.setImageUrl(cloudinaryHelper.saveImage(post.getImage()));
 		postRepository.save(post);
 
@@ -274,15 +298,17 @@ public class UserService {
 			return handleInvalidSession(session);
 
 		postRepository.findById(post.getId()).ifPresent(existing -> {
+
 			if (post.getImage() != null && !post.getImage().isEmpty()) {
 				post.setImageUrl(cloudinaryHelper.saveImage(post.getImage()));
 			} else {
 				post.setImageUrl(existing.getImageUrl());
 			}
+
+			post.setUser(user);
+			postRepository.save(post);
 		});
 
-		post.setUser(user);
-		postRepository.save(post);
 		session.setAttribute("pass", "Updated Success");
 		return REDIRECT + PROFILE;
 	}
@@ -294,7 +320,8 @@ public class UserService {
 			return handleInvalidSession(session);
 
 		List<User> suggestions = userRepository.findByVerifiedTrue();
-		suggestions.removeIf(u -> u.getId() == user.getId() || user.getFollowers().contains(u));
+		suggestions.removeIf(
+				u -> u.getId() == user.getId() || (user.getFollowers() != null && user.getFollowers().contains(u)));
 
 		if (suggestions.isEmpty()) {
 			session.setAttribute("fail", "No Suggestions");
@@ -311,8 +338,15 @@ public class UserService {
 			return handleInvalidSession(session);
 
 		userRepository.findById(id).ifPresent(followed -> {
+
+			if (user.getFollowing() == null)
+				user.setFollowing(new java.util.ArrayList<>());
+			if (followed.getFollowers() == null)
+				followed.setFollowers(new java.util.ArrayList<>());
+
 			user.getFollowing().add(followed);
 			followed.getFollowers().add(user);
+
 			userRepository.save(user);
 			userRepository.save(followed);
 		});
@@ -327,8 +361,15 @@ public class UserService {
 			return handleInvalidSession(session);
 
 		userRepository.findById(id).ifPresent(toUnfollow -> {
+
+			if (user.getFollowing() == null)
+				user.setFollowing(new java.util.ArrayList<>());
+			if (toUnfollow.getFollowers() == null)
+				toUnfollow.setFollowers(new java.util.ArrayList<>());
+
 			user.getFollowing().remove(toUnfollow);
 			toUnfollow.getFollowers().remove(user);
+
 			userRepository.save(user);
 			userRepository.save(toUnfollow);
 		});
@@ -375,8 +416,13 @@ public class UserService {
 			return handleInvalidSession(session);
 
 		postRepository.findById(id).ifPresent(post -> {
+
+			if (post.getLikedUsers() == null)
+				post.setLikedUsers(post.getLikedUsers() == null ? new java.util.HashSet<>() : post.getLikedUsers());
+
 			if (post.getLikedUsers().stream().noneMatch(u -> u.getId() == user.getId()))
 				post.getLikedUsers().add(user);
+
 			postRepository.save(post);
 		});
 
@@ -389,10 +435,13 @@ public class UserService {
 			return handleInvalidSession(session);
 
 		postRepository.findById(id).ifPresent(post -> {
+
+			if (post.getLikedUsers() == null)
+				post.setLikedUsers(new java.util.HashSet<>());
+
 			post.getLikedUsers().removeIf(u -> u.getId() == user.getId());
 			postRepository.save(post);
 		});
-
 		return REDIRECT + "home";
 	}
 
@@ -411,9 +460,14 @@ public class UserService {
 			return handleInvalidSession(session);
 
 		postRepository.findById(id).ifPresent(post -> {
+
+			if (post.getComments() == null)
+				post.setComments(post.getComments() == null ? new java.util.ArrayList<>() : post.getComments());
+
 			Comment userComment = new Comment();
 			userComment.setComment(comment);
 			userComment.setUser(user);
+
 			post.getComments().add(userComment);
 			postRepository.save(post);
 		});
@@ -427,8 +481,11 @@ public class UserService {
 		if (user == null)
 			return handleInvalidSession(session);
 
-		System.out.println("RAZORPAY KEY = " + razorpayKey);
-		System.out.println("RAZORPAY SECRET = " + razorpaySecret);
+		if (razorpayKey == null || razorpaySecret == null) {
+			throw new IllegalStateException("Razorpay config missing in environment");
+		}
+
+		log.info("Razorpay client initialized");
 
 		RazorpayClient client = new RazorpayClient(razorpayKey, razorpaySecret);
 		JSONObject object = new JSONObject();
