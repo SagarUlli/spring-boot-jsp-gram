@@ -110,11 +110,18 @@ public class UserService {
 			return REDIRECT + LOGIN;
 
 		User user = optUser.get();
+
+		if (user.getOtp() == 0) {
+			session.setAttribute("fail", "OTP expired. Please resend OTP.");
+			return REDIRECT + "otp/" + id;
+		}
+
 		if (user.getOtp() == otp) {
 			user.setVerified(true);
 			user.setOtp(0);
 			userRepository.save(user);
-			session.setAttribute("pass", "Account Created Success");
+
+			session.setAttribute("pass", "Account Verified Successfully");
 			return REDIRECT + LOGIN;
 		}
 

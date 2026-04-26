@@ -17,6 +17,10 @@ public class EmailSender {
 	private final TemplateEngine engine;
 
 	public void sendOtp(String to, int otp, String name) {
+
+		System.out.println("MAIL USER: " + System.getenv("GMAIL_USERNAME"));
+		System.out.println("MAIL PASS: " + System.getenv("GMAIL_APP_PASSWORD"));
+
 		try {
 			MimeMessage message = sender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(message, true);
