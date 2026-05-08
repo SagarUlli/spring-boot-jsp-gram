@@ -58,7 +58,7 @@ public class AppController {
 	}
 
 	@PostMapping("/login")
-	public String login(@RequestParam String username, String password, HttpSession session) {
+	public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
 		return service.login(username, password, session);
 	}
 
