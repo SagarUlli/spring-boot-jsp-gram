@@ -9,15 +9,15 @@ import java.util.Random;
 
 import org.json.JSONObject;
 import org.jsp.jsp_gram.dto.ApiResponse;
-import org.jsp.jsp_gram.dto.Comment;
-import org.jsp.jsp_gram.dto.Post;
 import org.jsp.jsp_gram.dto.RegisterRequest;
-import org.jsp.jsp_gram.dto.User;
 import org.jsp.jsp_gram.dto.UserResponse;
 import org.jsp.jsp_gram.exception.AuthException;
 import org.jsp.jsp_gram.helper.AES;
 import org.jsp.jsp_gram.helper.CloudinaryHelper;
 import org.jsp.jsp_gram.mapper.UserMapper;
+import org.jsp.jsp_gram.model.Comment;
+import org.jsp.jsp_gram.model.Post;
+import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.PostRepository;
 import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;

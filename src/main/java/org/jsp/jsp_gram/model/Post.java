@@ -1,4 +1,4 @@
-package org.jsp.jsp_gram.dto;
+package org.jsp.jsp_gram.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

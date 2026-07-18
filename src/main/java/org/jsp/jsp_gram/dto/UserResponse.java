@@ -20,4 +20,6 @@ public class UserResponse {
 	private String gender;
 	private String imageUrl;
 	private boolean prime;
+	private int followersCount;
+	private int followingCount;
 }

@@ -1,7 +1,7 @@
 package org.jsp.jsp_gram.mapper;
 
-import org.jsp.jsp_gram.dto.User;
 import org.jsp.jsp_gram.dto.UserResponse;
+import org.jsp.jsp_gram.model.User;
 
 public class UserMapper {
 
@@ -14,7 +14,20 @@ public class UserMapper {
 			return null;
 		}
 
-		return new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getUsername(),
-				user.getEmail(), user.getMobile(), user.getGender(), user.getImageUrl(), user.isPrime());
+		UserResponse response = new UserResponse();
+
+		response.setId(user.getId());
+		response.setFirstname(user.getFirstname());
+		response.setLastname(user.getLastname());
+		response.setUsername(user.getUsername());
+		response.setEmail(user.getEmail());
+		response.setMobile(user.getMobile());
+		response.setGender(user.getGender());
+		response.setImageUrl(user.getImageUrl());
+		response.setPrime(user.isPrime());
+		response.setFollowersCount(user.getFollowers().size());
+		response.setFollowingCount(user.getFollowing().size());
+
+		return response;
 	}
 }

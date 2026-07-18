@@ -1,4 +1,4 @@
-package org.jsp.jsp_gram.dto;
+package org.jsp.jsp_gram.model;
 
 import java.time.LocalDateTime;
 
@@ -18,8 +18,7 @@ public class Comment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-
-	private String comment;
+		private String comment;
 
 	@CreationTimestamp
 	private LocalDateTime commentedTime;

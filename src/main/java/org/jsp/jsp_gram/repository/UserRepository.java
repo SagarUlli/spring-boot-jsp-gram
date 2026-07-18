@@ -2,7 +2,7 @@ package org.jsp.jsp_gram.repository;
 
 import java.util.List;
 
-import org.jsp.jsp_gram.dto.User;
+import org.jsp.jsp_gram.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
