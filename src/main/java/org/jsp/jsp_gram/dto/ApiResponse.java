@@ -32,4 +32,5 @@ public class ApiResponse<T> {
 		this.message = message;
 		this.errors = errors;
 	}
+
 }

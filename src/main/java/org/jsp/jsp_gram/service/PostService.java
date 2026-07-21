@@ -63,7 +63,7 @@ public class PostService {
 
 		post = postRepository.save(post);
 
-		PostResponse response = PostMapper.toResponse(post);
+		PostResponse response = PostMapper.toResponse(post, user);
 		response.setLiked(post.hasLiked(user.getId()));
 
 		return new ApiResponse<>(true, "Post created successfully", response);
@@ -82,7 +82,7 @@ public class PostService {
 		List<Post> posts = postRepository.findByUserInOrderByPostedTimeDesc(users);
 
 		List<PostResponse> response = posts.stream().map(post -> {
-			PostResponse dto = PostMapper.toResponse(post);
+			PostResponse dto = PostMapper.toResponse(post, user);
 			dto.setLiked(post.hasLiked(user.getId()));
 			return dto;
 		}).toList();
@@ -101,7 +101,7 @@ public class PostService {
 
 		validatePostOwner(post, user);
 
-		PostResponse response = PostMapper.toResponse(post);
+		PostResponse response = PostMapper.toResponse(post, user);
 		response.setLiked(post.hasLiked(user.getId()));
 
 		return new ApiResponse<>(true, "Post fetched successfully", response);
@@ -126,7 +126,7 @@ public class PostService {
 
 		post = postRepository.save(post);
 
-		PostResponse response = PostMapper.toResponse(post);
+		PostResponse response = PostMapper.toResponse(post, user);
 		response.setLiked(post.hasLiked(user.getId()));
 
 		return new ApiResponse<>(true, "Post updated successfully", response);
@@ -162,7 +162,7 @@ public class PostService {
 			post = postRepository.save(post);
 		}
 
-		PostResponse response = PostMapper.toResponse(post);
+		PostResponse response = PostMapper.toResponse(post, user);
 		response.setLiked(post.hasLiked(user.getId()));
 
 		return new ApiResponse<>(true, "Post liked", response);
@@ -181,7 +181,7 @@ public class PostService {
 
 		post = postRepository.save(post);
 
-		PostResponse response = PostMapper.toResponse(post);
+		PostResponse response = PostMapper.toResponse(post, user);
 		response.setLiked(post.hasLiked(user.getId()));
 
 		return new ApiResponse<>(true, "Post unliked", response);

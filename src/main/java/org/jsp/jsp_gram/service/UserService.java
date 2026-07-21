@@ -23,7 +23,6 @@ import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.razorpay.Order;
@@ -75,34 +74,7 @@ public class UserService {
 		return "register.html";
 	}
 
-	public String register(User user, BindingResult result, HttpSession session) {
-		if (!user.getPassword().equals(user.getConfirmpassword()))
-			result.rejectValue("confirmpassword", "error.confirmpassword", "Password Not Matching");
-
-		if (userRepository.existsByEmail(user.getEmail()))
-			result.rejectValue("email", "error.email", "Email already Exists");
-
-		if (userRepository.existsByMobile(user.getMobile()))
-			result.rejectValue("mobile", "error.mobile", "Mobile Already Exists");
-
-		if (userRepository.existsByUsername(user.getUsername()))
-			result.rejectValue("username", "error.username", "Username Taken");
-
-		if (result.hasErrors())
-			return "register.html";
-
-		user.setPassword(AES.encrypt(user.getPassword()));
-		int otp = generateOtp();
-		user.setOtp(otp);
-		log.info("OTP: {}", otp);
-
-		userRepository.save(user);
-		session.setAttribute("pass", "OTP Sent Success");
-
-		return REDIRECT + "otp/" + user.getId();
-	}
-
-	public ApiResponse<Void> registerRest(RegisterRequest request, HttpSession session) {
+	public ApiResponse<Integer> registerRest(RegisterRequest request, HttpSession session) {
 
 		Map<String, String> errors = new HashMap<>();
 
@@ -144,25 +116,7 @@ public class UserService {
 
 		session.setAttribute("pass", "OTP Sent Success");
 
-		return new ApiResponse<>(true, "OTP sent successfully");
-	}
-
-	public String verifyOtp(int id, int otp, HttpSession session) {
-		Optional<User> optUser = userRepository.findById(id);
-		if (optUser.isEmpty())
-			return REDIRECT + LOGIN;
-
-		User user = optUser.get();
-		if (user.getOtp() == otp) {
-			user.setVerified(true);
-			user.setOtp(0);
-			userRepository.save(user);
-			session.setAttribute("pass", "Account Created Success");
-			return REDIRECT + LOGIN;
-		}
-
-		session.setAttribute("fail", "Invalid OTP");
-		return REDIRECT + "otp/" + id;
+		return new ApiResponse<>(true, "OTP sent successfully", user.getId());
 	}
 
 	public ApiResponse<Void> verifyOtpRest(int id, int otp, HttpSession session) {
@@ -189,44 +143,20 @@ public class UserService {
 		return new ApiResponse<>(true, "Account verified successfully");
 	}
 
-	public String resendOtp(int id, HttpSession session) {
-		Optional<User> optUser = userRepository.findById(id);
-		if (optUser.isEmpty())
-			return REDIRECT + LOGIN;
+	public ApiResponse<Void> resendOtpRest(int userId, HttpSession session) {
 
-		User user = optUser.get();
+		User user = userRepository.findById(userId).orElseThrow(() -> new AuthException("User not found"));
+
 		user.setOtp(generateOtp());
+
 		userRepository.save(user);
+
 		session.setAttribute("pass", "OTP Sent Success");
 
-		return REDIRECT + "otp/" + user.getId();
+		return new ApiResponse<>(true, "OTP sent successfully");
 	}
 
 	/* ================= LOGIN / LOGOUT ================= */
-	public String login(String username, String password, HttpSession session) {
-		User user = userRepository.findByUsername(username);
-		if (user == null) {
-			session.setAttribute("fail", "Invalid Username");
-			return REDIRECT + LOGIN;
-		}
-
-		if (!AES.decrypt(user.getPassword()).equals(password)) {
-			session.setAttribute("fail", "Incorrect Password");
-			return REDIRECT + LOGIN;
-		}
-
-		if (!user.isVerified()) {
-			user.setOtp(generateOtp());
-			userRepository.save(user);
-			session.setAttribute("pass", "Verify Email First");
-			return REDIRECT + "otp/" + user.getId();
-		}
-
-		session.setAttribute("user", user);
-		session.setAttribute("pass", "Login Success");
-		return REDIRECT + "home";
-	}
-
 	public ApiResponse<UserResponse> loginRest(String username, String password, HttpSession session) {
 
 		User user = userRepository.findByUsername(username);

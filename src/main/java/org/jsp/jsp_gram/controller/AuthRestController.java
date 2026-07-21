@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AuthRestController {
@@ -31,7 +31,7 @@ public class AuthRestController {
 	}
 
 	@PostMapping("/register")
-	public ApiResponse<Void> register(@RequestBody RegisterRequest request, HttpSession session) {
+	public ApiResponse<Integer> register(@RequestBody RegisterRequest request, HttpSession session) {
 
 		return service.registerRest(request, session);
 	}
@@ -39,7 +39,16 @@ public class AuthRestController {
 	@PostMapping("/verify-otp")
 	public ApiResponse<Void> verifyOtp(@RequestBody OtpRequest request, HttpSession session) {
 
+		System.out.println("Request = " + request);
+		System.out.println("UserId = " + request.getUserId());
+		System.out.println("OTP = " + request.getOtp());
+
 		return service.verifyOtpRest(request.getUserId(), request.getOtp(), session);
+	}
+
+	@PostMapping("/resend-otp")
+	public ApiResponse<Void> resendOtp(@RequestBody OtpRequest request, HttpSession session) {
+		return service.resendOtpRest(request.getUserId(), session);
 	}
 
 	@GetMapping("/me")
