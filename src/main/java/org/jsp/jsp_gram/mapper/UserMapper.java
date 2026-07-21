@@ -1,5 +1,8 @@
 package org.jsp.jsp_gram.mapper;
 
+import java.util.List;
+
+import org.jsp.jsp_gram.dto.PostResponse;
 import org.jsp.jsp_gram.dto.UserResponse;
 import org.jsp.jsp_gram.model.User;
 
@@ -23,10 +26,19 @@ public class UserMapper {
 		response.setEmail(user.getEmail());
 		response.setMobile(user.getMobile());
 		response.setGender(user.getGender());
+
+		response.setBio(user.getBio());
 		response.setImageUrl(user.getImageUrl());
+
 		response.setPrime(user.isPrime());
+
 		response.setFollowersCount(user.getFollowers().size());
 		response.setFollowingCount(user.getFollowing().size());
+
+		List<PostResponse> posts = user.getPosts().stream().map(PostMapper::toResponse).toList();
+
+		response.setPosts(posts);
+		response.setPostCount(posts.size());
 
 		return response;
 	}

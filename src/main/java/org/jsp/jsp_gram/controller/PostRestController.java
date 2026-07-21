@@ -41,7 +41,7 @@ public class PostRestController {
 
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping("/{id:\\d+}")
 	public ApiResponse<PostResponse> getPost(@PathVariable int id, HttpSession session) {
 
 		return postService.getPost(id, session);

@@ -1,5 +1,7 @@
 package org.jsp.jsp_gram.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +20,15 @@ public class UserResponse {
 	private String email;
 	private long mobile;
 	private String gender;
+
+	private String bio;
 	private String imageUrl;
+
 	private boolean prime;
+
+	private int postCount;
 	private int followersCount;
 	private int followingCount;
+
+	private List<PostResponse> posts;
 }
