@@ -12,8 +12,8 @@ public class PostMapper {
 	public static PostResponse toResponse(Post post) {
 
 		return new PostResponse(post.getId(), post.getCaption(), post.getImageUrl(), post.getPostedTime(),
-				UserMapper.toResponse(post.getUser()), post.getLikedUsers().size(), post.getComments().size(), false,
-				false);
+				UserMapper.toSummaryResponse(post.getUser()), post.getLikedUsers().size(), post.getComments().size(),
+				false, false);
 	}
 
 	public static PostResponse toResponse(Post post, User loggedInUser) {
@@ -23,7 +23,7 @@ public class PostMapper {
 		boolean ownPost = post.getUser().getId() == loggedInUser.getId();
 
 		return new PostResponse(post.getId(), post.getCaption(), post.getImageUrl(), post.getPostedTime(),
-				UserMapper.toResponse(post.getUser()), post.getLikedUsers().size(), post.getComments().size(), liked,
-				ownPost);
+				UserMapper.toSummaryResponse(post.getUser()), post.getLikedUsers().size(), post.getComments().size(),
+				liked, ownPost);
 	}
 }

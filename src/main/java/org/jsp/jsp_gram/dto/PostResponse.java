@@ -13,21 +13,22 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostResponse {
 
-    private Integer id;
+	private Integer id;
 
-    private String caption;
+	private String caption;
 
-    private String imageUrl;
+	private String imageUrl;
 
-    private LocalDateTime postedTime;
+	private LocalDateTime postedTime;
 
-    private UserResponse user;
+	private UserSummaryResponse user;
 
-    private int likeCount;
+	private int likeCount;
 
-    private int commentCount;
+	private int commentCount;
 
-    private boolean liked;
+	private boolean liked;
 
-    private boolean ownPost;
+	private boolean ownPost;
+
 }
