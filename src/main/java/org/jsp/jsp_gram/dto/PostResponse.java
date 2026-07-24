@@ -7,28 +7,30 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostResponse {
 
-	private Integer id;
 
-	private String caption;
+    private Integer id;
 
-	private String imageUrl;
+    private String caption;
 
-	private LocalDateTime postedTime;
+    private String imageUrl;
 
-	private UserSummaryResponse user;
+    private LocalDateTime postedTime;
 
-	private int likeCount;
+    private UserSummaryResponse user;
 
-	private int commentCount;
+    private int likeCount;
 
-	private boolean liked;
+    private int commentCount;
 
-	private boolean ownPost;
+    private boolean liked;
+
+    private boolean ownPost;
 
 }

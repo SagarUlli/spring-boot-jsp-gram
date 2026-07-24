@@ -24,77 +24,127 @@ import lombok.extern.slf4j.Slf4j;
 public class CommentService {
 
 	private final CommentRepository commentRepository;
+
 	private final PostRepository postRepository;
+
 	private final SessionService sessionService;
 
-	/**
-	 * Returns post by id.
-	 */
 	private Post getPostById(int id) {
 
 		return postRepository.findById(id).orElseThrow(() -> new AuthException("Post not found"));
+
 	}
 
-	/**
-	 * Add Comment.
-	 */
-	public ApiResponse<CommentResponse> addComment(int id, CommentRequest request, HttpSession session) {
+	private Comment getCommentById(int id) {
+
+		return commentRepository.findById(id).orElseThrow(() -> new AuthException("Comment not found"));
+
+	}
+
+	// ADD COMMENT
+
+	public ApiResponse<CommentResponse> addComment(
+
+			int postId,
+
+			CommentRequest request,
+
+			HttpSession session
+
+	) {
 
 		User user = sessionService.getLoggedInUser(session);
 
-		Post post = getPostById(id);
+		Post post = getPostById(postId);
 
 		Comment comment = new Comment();
 
 		comment.setComment(request.getComment());
+
 		comment.setUser(user);
 
-		post.getComments().add(comment);
+		comment.setPost(post);
 
-		postRepository.save(post);
+		commentRepository.save(comment);
 
-		return new ApiResponse<>(true, "Comment added successfully", CommentMapper.toResponse(comment));
+		return new ApiResponse<>(
+
+				true,
+
+				"Comment added successfully",
+
+				CommentMapper.toResponse(comment)
+
+		);
+
 	}
 
-	/**
-	 * Get all comments of a post.
-	 */
-	public ApiResponse<List<CommentResponse>> getComments(int id, HttpSession session) {
+	// GET COMMENTS
+
+	public ApiResponse<List<CommentResponse>> getComments(
+
+			int postId,
+
+			HttpSession session
+
+	) {
 
 		sessionService.getLoggedInUser(session);
 
-		Post post = getPostById(id);
+		Post post = getPostById(postId);
 
-		List<CommentResponse> response = post.getComments().stream()
-				.sorted((c1, c2) -> c2.getCommentedTime().compareTo(c1.getCommentedTime()))
-				.map(CommentMapper::toResponse).toList();
+		List<CommentResponse> comments =
 
-		return new ApiResponse<>(true, "Comments fetched successfully", response);
+				post.getComments().stream()
+
+						.sorted((c1, c2) -> c2.getCommentedTime().compareTo(c1.getCommentedTime()))
+
+						.map(CommentMapper::toResponse)
+
+						.toList();
+
+		return new ApiResponse<>(
+
+				true,
+
+				"Comments fetched successfully",
+
+				comments
+
+		);
+
 	}
 
-	/**
-	 * Returns comment by id.
-	 */
-	private Comment getCommentById(int id) {
+	// DELETE COMMENT
 
-		return commentRepository.findById(id).orElseThrow(() -> new AuthException("Comment not found"));
-	}
+	public ApiResponse<Void> deleteComment(
 
-	/**
-	 * Delete Comment.
-	 */
-	public ApiResponse<Void> deleteComment(int id, HttpSession session) {
+			int commentId,
+
+			HttpSession session
+
+	) {
 
 		User user = sessionService.getLoggedInUser(session);
 
-		Comment comment = getCommentById(id);
+		Comment comment = getCommentById(commentId);
 
 		if (comment.getUser().getId() != user.getId()) {
+
 			throw new AuthException("Unauthorized");
+
 		}
 
 		commentRepository.delete(comment);
 
-		return new ApiResponse<>(true, "Comment deleted successfully");
+		return new ApiResponse<>(
+
+				true,
+
+				"Comment deleted successfully"
+
+		);
+
 	}
+
 }

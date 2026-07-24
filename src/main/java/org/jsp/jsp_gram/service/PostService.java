@@ -24,30 +24,27 @@ import lombok.extern.slf4j.Slf4j;
 public class PostService {
 
 	private final CloudinaryHelper cloudinaryHelper;
+
 	private final PostRepository postRepository;
+
 	private final SessionService sessionService;
 
-	/**
-	 * Returns post by id.
-	 */
 	private Post getPostById(int id) {
 
 		return postRepository.findById(id).orElseThrow(() -> new AuthException("Post not found"));
+
 	}
 
-	/**
-	 * Validates whether the logged-in user owns the post.
-	 */
 	private void validatePostOwner(Post post, User user) {
 
 		if (post.getUser().getId() != user.getId()) {
+
 			throw new AuthException("Unauthorized");
+
 		}
+
 	}
 
-	/**
-	 * Create a new post.
-	 */
 	public ApiResponse<PostResponse> createPostRest(PostRequest request, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -55,61 +52,47 @@ public class PostService {
 		Post post = new Post();
 
 		post.setCaption(request.getCaption());
+
 		post.setUser(user);
 
 		if (request.getImage() != null && !request.getImage().isEmpty()) {
+
 			post.setImageUrl(cloudinaryHelper.saveImage(request.getImage()));
+
 		}
 
 		post = postRepository.save(post);
 
-		PostResponse response = PostMapper.toResponse(post, user);
-		response.setLiked(post.hasLiked(user.getId()));
+		return new ApiResponse<>(true, "Post created successfully", PostMapper.toResponse(post, user));
 
-		return new ApiResponse<>(true, "Post created successfully", response);
 	}
 
-	/**
-	 * Get home feed.
-	 */
 	public ApiResponse<List<PostResponse>> getFeed(HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
 
 		List<User> users = new ArrayList<>(user.getFollowing());
+
 		users.add(user);
 
 		List<Post> posts = postRepository.findByUserInOrderByPostedTimeDesc(users);
 
-		List<PostResponse> response = posts.stream().map(post -> {
-			PostResponse dto = PostMapper.toResponse(post, user);
-			dto.setLiked(post.hasLiked(user.getId()));
-			return dto;
-		}).toList();
+		List<PostResponse> response = posts.stream().map(post -> PostMapper.toResponse(post, user)).toList();
 
 		return new ApiResponse<>(true, "Posts fetched successfully", response);
+
 	}
 
-	/**
-	 * Get Post by id.
-	 */
 	public ApiResponse<PostResponse> getPost(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
 
 		Post post = getPostById(id);
 
-		validatePostOwner(post, user);
+		return new ApiResponse<>(true, "Post fetched successfully", PostMapper.toResponse(post, user));
 
-		PostResponse response = PostMapper.toResponse(post, user);
-		response.setLiked(post.hasLiked(user.getId()));
-
-		return new ApiResponse<>(true, "Post fetched successfully", response);
 	}
 
-	/**
-	 * Update Post.
-	 */
 	public ApiResponse<PostResponse> updatePost(int id, PostRequest request, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -121,20 +104,17 @@ public class PostService {
 		post.setCaption(request.getCaption());
 
 		if (request.getImage() != null && !request.getImage().isEmpty()) {
+
 			post.setImageUrl(cloudinaryHelper.saveImage(request.getImage()));
+
 		}
 
-		post = postRepository.save(post);
+		postRepository.save(post);
 
-		PostResponse response = PostMapper.toResponse(post, user);
-		response.setLiked(post.hasLiked(user.getId()));
+		return new ApiResponse<>(true, "Post updated successfully", PostMapper.toResponse(post, user));
 
-		return new ApiResponse<>(true, "Post updated successfully", response);
 	}
 
-	/**
-	 * Delete Post.
-	 */
 	public ApiResponse<Void> deletePost(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -146,11 +126,11 @@ public class PostService {
 		postRepository.delete(post);
 
 		return new ApiResponse<>(true, "Post deleted successfully");
+
 	}
 
-	/**
-	 * Like Post.
-	 */
+	// LIKE
+
 	public ApiResponse<PostResponse> likePost(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -158,19 +138,19 @@ public class PostService {
 		Post post = getPostById(id);
 
 		if (!post.hasLiked(user.getId())) {
+
 			post.getLikedUsers().add(user);
-			post = postRepository.save(post);
+
+			postRepository.save(post);
+
 		}
 
-		PostResponse response = PostMapper.toResponse(post, user);
-		response.setLiked(post.hasLiked(user.getId()));
+		return new ApiResponse<>(true, "Post liked", PostMapper.toResponse(post, user));
 
-		return new ApiResponse<>(true, "Post liked", response);
 	}
 
-	/**
-	 * Unlike Post.
-	 */
+	// UNLIKE
+
 	public ApiResponse<PostResponse> unlikePost(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -179,12 +159,10 @@ public class PostService {
 
 		post.getLikedUsers().removeIf(u -> u.getId() == user.getId());
 
-		post = postRepository.save(post);
+		postRepository.save(post);
 
-		PostResponse response = PostMapper.toResponse(post, user);
-		response.setLiked(post.hasLiked(user.getId()));
+		return new ApiResponse<>(true, "Post unliked", PostMapper.toResponse(post, user));
 
-		return new ApiResponse<>(true, "Post unliked", response);
 	}
 
 }

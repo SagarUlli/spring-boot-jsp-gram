@@ -15,6 +15,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -25,32 +27,94 @@ import lombok.Data;
 @Data
 public class Post {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
 
-	private String imageUrl;
-	private String caption;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-	@UpdateTimestamp
-	private LocalDateTime postedTime;
+    private String imageUrl;
 
-	@ManyToOne
-	private User user;
+    private String caption;
 
-	@Transient
-	private MultipartFile image;
+    @UpdateTimestamp
+    private LocalDateTime postedTime;
 
-	@ManyToMany(fetch = FetchType.EAGER)
-	private Set<User> likedUsers = new HashSet<>();
+    // Post owner
 
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Comment> comments = new ArrayList<>();
+    @ManyToOne
+    private User user;
 
-	/**
-	 * Check if a user has liked this post
-	 */
-	public boolean hasLiked(int userId) {
-		return likedUsers.stream().anyMatch(u -> u.getId() == userId);
-	}
+    // Used only for image upload
+
+    @Transient
+    private MultipartFile image;
+
+    // Users who liked this post
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "post_likes",
+
+        joinColumns = @JoinColumn(name = "post_id"),
+
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> likedUsers = new HashSet<>();
+
+    // Comments on this post
+
+    @OneToMany(
+        mappedBy = "post",
+        fetch = FetchType.EAGER,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<Comment> comments = new ArrayList<>();
+    /*
+     * Check if current user liked this post
+     */
+
+    public boolean hasLiked(int userId) {
+
+        return likedUsers
+                .stream()
+                .anyMatch(user -> user.getId() == userId);
+
+    }
+    /*
+     * Add like
+     */
+
+    public void addLike(User user) {
+
+        likedUsers.add(user);
+
+    }
+    /*
+     * Remove like
+     */
+
+    public void removeLike(User user) {
+
+        likedUsers.remove(user);
+
+    }
+    /*
+     * Total likes count
+     */
+
+    public int getLikesCount() {
+
+        return likedUsers.size();
+
+    }
+    /*
+     * Total comments count
+     */
+
+    public int getCommentsCount() {
+
+        return comments.size();
+
+    }
 }

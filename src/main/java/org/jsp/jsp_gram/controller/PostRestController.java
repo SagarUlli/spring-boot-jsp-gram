@@ -32,6 +32,7 @@ public class PostRestController {
 	public ApiResponse<PostResponse> createPost(@ModelAttribute PostRequest request, HttpSession session) {
 
 		return postService.createPostRest(request, session);
+
 	}
 
 	@GetMapping
@@ -45,6 +46,7 @@ public class PostRestController {
 	public ApiResponse<PostResponse> getPost(@PathVariable int id, HttpSession session) {
 
 		return postService.getPost(id, session);
+
 	}
 
 	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -52,24 +54,28 @@ public class PostRestController {
 			HttpSession session) {
 
 		return postService.updatePost(id, request, session);
+
 	}
 
 	@DeleteMapping("/{id}")
 	public ApiResponse<Void> deletePost(@PathVariable int id, HttpSession session) {
 
 		return postService.deletePost(id, session);
+
 	}
 
 	@PostMapping("/{id}/like")
 	public ApiResponse<PostResponse> likePost(@PathVariable int id, HttpSession session) {
 
 		return postService.likePost(id, session);
+
 	}
 
 	@DeleteMapping("/{id}/like")
 	public ApiResponse<PostResponse> unlikePost(@PathVariable int id, HttpSession session) {
 
 		return postService.unlikePost(id, session);
+
 	}
 
 }

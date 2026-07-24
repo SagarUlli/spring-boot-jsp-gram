@@ -25,22 +25,51 @@ public class CommentRestController {
 
 	private final CommentService commentService;
 
-	@PostMapping("/{id}/comments")
-	public ApiResponse<CommentResponse> addComment(@PathVariable int id, @RequestBody @Valid CommentRequest request,
-			HttpSession session) {
+	// Add comment
 
-		return commentService.addComment(id, request, session);
+	@PostMapping("/{postId}")
+	public ApiResponse<CommentResponse> addComment(
+
+			@PathVariable int postId,
+
+			@RequestBody @Valid CommentRequest request,
+
+			HttpSession session
+
+	) {
+
+		return commentService.addComment(postId, request, session);
+
 	}
 
-	@GetMapping("/{id}/comments")
-	public ApiResponse<List<CommentResponse>> getComments(@PathVariable int id, HttpSession session) {
+	// Get comments of a post
 
-		return commentService.getComments(id, session);
+	@GetMapping("/{postId}")
+	public ApiResponse<List<CommentResponse>> getComments(
+
+			@PathVariable int postId,
+
+			HttpSession session
+
+	) {
+
+		return commentService.getComments(postId, session);
+
 	}
 
-	@DeleteMapping("/{id}")
-	public ApiResponse<Void> deleteComment(@PathVariable int id, HttpSession session) {
+	// Delete comment
 
-		return commentService.deleteComment(id, session);
+	@DeleteMapping("/{commentId}")
+	public ApiResponse<Void> deleteComment(
+
+			@PathVariable int commentId,
+
+			HttpSession session
+
+	) {
+
+		return commentService.deleteComment(commentId, session);
+
 	}
+
 }
