@@ -6,7 +6,6 @@ import org.jsp.jsp_gram.dto.OtpRequest;
 import org.jsp.jsp_gram.dto.RegisterRequest;
 import org.jsp.jsp_gram.dto.UserResponse;
 import org.jsp.jsp_gram.service.UserService;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,10 +18,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {
-		"http://localhost:5173",
-		"https://react-jsp-gram.vercel.app"
-}, allowCredentials = "true")
 public class AuthRestController {
 
 	private final UserService service;

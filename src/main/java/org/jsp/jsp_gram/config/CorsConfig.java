@@ -13,11 +13,13 @@ public class CorsConfig {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**")..allowedOrigins(
-    "http://localhost:5173",
-    "https://react-jsp-gram.vercel.app"
-).allowedMethods("*")
-						.allowedHeaders("*").allowCredentials(true);
+				registry.addMapping("/**")
+						.allowedOrigins(
+								"http://localhost:5173",
+								"https://react-jsp-gram.vercel.app")
+						.allowedMethods("*")
+						.allowedHeaders("*")
+						.allowCredentials(true);
 			}
 		};
 	}
