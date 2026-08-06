@@ -1,45 +1,78 @@
-# JSPGram - Backend
+# JSPGram - Social Media Web Application (Backend)
 
-JSPGram Backend is a Spring Boot REST API for a social media platform that enables secure user authentication, post management, social interactions, image uploads, and premium membership integration.
+## Description
+
+JSPGram is a Spring Boot REST API for a social media platform where users can register, verify accounts using OTP, create and manage posts, follow other users, interact through likes and comments, manage profiles, and upgrade to Prime membership using Razorpay.
 
 ## Tech Stack
 
 - Java 17
 - Spring Boot
 - Spring MVC
-- Spring Data JPA
-- Hibernate
+- Spring Data JPA (Hibernate)
 - MySQL
-- Bean Validation
-- Lombok
 - Maven
+- Lombok
+- Bean Validation
 - Cloudinary
 - Razorpay
+- Jakarta Servlet (HttpSession)
 
 ## Features
 
-- User registration with OTP verification and session-based authentication.
-- Secure login and logout with centralized exception handling.
-- Profile management with Cloudinary image upload support.
-- Create, update, delete, and retrieve posts with image uploads.
-- Personalized home feed based on followed users.
-- Follow and unfollow users with followers and following management.
-- Like, unlike, add, and delete comments on posts.
-- Razorpay integration for Prime membership activation.
-- RESTful APIs using DTOs, mappers, and a generic API response wrapper.
-- Layered architecture following Controller-Service-Repository design.
+### Authentication
+- User registration with OTP verification
+- Session-based authentication
+- Login and logout
+- User profile retrieval
 
-## Project Structure
+### User Management
+- View and update profile
+- Upload profile images using Cloudinary
+- Follow and unfollow users
+- View followers and following
+- User suggestions
 
-```text
-src
-├── controller
-├── service
-├── repository
-├── model
-├── dto
-├── mapper
-├── exception
-├── helper
-└── config
-```
+### Post Management
+- Create posts with images
+- View home feed
+- Update posts
+- Delete posts
+- View individual posts
+
+### Social Features
+- Like and unlike posts
+- Add comments
+- View comments
+
+### Premium Membership
+- Razorpay order creation
+- Payment verification
+- Prime membership activation
+
+### API Features
+- RESTful API design
+- DTO-based request and response models
+- Generic API response wrapper
+- Centralized exception handling
+- Input validation using Bean Validation
+
+## Database
+
+- MySQL
+- Spring Data JPA
+- Hibernate ORM
+
+## Third-Party Integrations
+
+- Cloudinary for image storage
+- Razorpay for payment processing
+
+## Project Architecture
+
+- Controller Layer
+- Service Layer
+- Repository Layer
+- DTO Layer
+- Mapper Layer
+- Exception Handling
