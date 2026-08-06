@@ -1,23 +1,45 @@
----
-JSPGram - Social Media Web Application:
-  description: "JSPGram is a social media platform for users to register, post content, follow others, and manage profiles, with premium membership via Razorpay."
+# JSPGram - Backend
 
-technologies_used:
-  - backend: Spring Boot
-  - frontend: 
-    - Thymeleaf
-    - HTML
-    - CSS
-    - JavaScript
-  - database: MySQL
-  - image_storage: Cloudinary
-  - payment_gateway: Razorpay
+JSPGram Backend is a Spring Boot REST API for a social media platform that enables secure user authentication, post management, social interactions, image uploads, and premium membership integration.
 
-key_features:
-  - user_registration: "Email OTP for secure sign-up"
-  - home_feed: "Posts from followed users"
-  - profile_management: "Upload and manage profile pictures (Cloudinary)"
-  - prime_membership: "Premium access via Razorpay"
-  - post_management: "Create, edit, delete posts"
-  - followers_following: "Follow users to see their posts"
----
+## Tech Stack
+
+- Java 17
+- Spring Boot
+- Spring MVC
+- Spring Data JPA
+- Hibernate
+- MySQL
+- Bean Validation
+- Lombok
+- Maven
+- Cloudinary
+- Razorpay
+
+## Features
+
+- User registration with OTP verification and session-based authentication.
+- Secure login and logout with centralized exception handling.
+- Profile management with Cloudinary image upload support.
+- Create, update, delete, and retrieve posts with image uploads.
+- Personalized home feed based on followed users.
+- Follow and unfollow users with followers and following management.
+- Like, unlike, add, and delete comments on posts.
+- Razorpay integration for Prime membership activation.
+- RESTful APIs using DTOs, mappers, and a generic API response wrapper.
+- Layered architecture following Controller-Service-Repository design.
+
+## Project Structure
+
+```text
+src
+├── controller
+├── service
+├── repository
+├── model
+├── dto
+├── mapper
+├── exception
+├── helper
+└── config
+```
