@@ -1,15 +1,21 @@
 package org.jsp.jsp_gram.controller;
 
+import java.util.List;
+
 import org.jsp.jsp_gram.dto.ApiResponse;
 import org.jsp.jsp_gram.dto.LoginRequest;
 import org.jsp.jsp_gram.dto.OtpRequest;
 import org.jsp.jsp_gram.dto.RegisterRequest;
 import org.jsp.jsp_gram.dto.UserResponse;
+import org.jsp.jsp_gram.mapper.UserMapper;
+import org.jsp.jsp_gram.model.User;
+import org.jsp.jsp_gram.service.SessionService;
 import org.jsp.jsp_gram.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpSession;
@@ -21,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthRestController {
 
 	private final UserService service;
+	private final SessionService sessionService;
 
 	@PostMapping("/login")
 	public ApiResponse<UserResponse> login(@RequestBody LoginRequest request, HttpSession session) {
@@ -50,10 +57,11 @@ public class AuthRestController {
 	}
 
 	@GetMapping("/me")
-	public ApiResponse<UserResponse> me(HttpSession session) {
+	public ApiResponse<UserResponse> getLoggedInUser(HttpSession session) {
 
-		return service.getLoggedInUser(session);
+		User user = sessionService.getLoggedInUser(session);
 
+		return new ApiResponse<>(true, "User Found", UserMapper.toResponse(user));
 	}
 
 	@PostMapping("/logout")
@@ -61,5 +69,11 @@ public class AuthRestController {
 
 		return service.logoutRest(session);
 
+	}
+
+	@GetMapping("/search")
+	public ApiResponse<List<UserResponse>> searchUsers(@RequestParam String username, HttpSession session) {
+
+		return service.searchUsers(username, session);
 	}
 }

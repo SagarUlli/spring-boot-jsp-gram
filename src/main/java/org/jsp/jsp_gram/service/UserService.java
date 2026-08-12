@@ -1,6 +1,7 @@
 package org.jsp.jsp_gram.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -27,6 +28,7 @@ public class UserService {
 
 	private static final String REDIRECT = "redirect:/";
 	private static final String LOGIN = "login";
+	private final SessionService sessionService;
 
 	@Value("${razorpay.key}")
 	private String razorpayKey;
@@ -155,19 +157,6 @@ public class UserService {
 		return new ApiResponse<>(true, "Login Success", response);
 	}
 
-	public ApiResponse<UserResponse> getLoggedInUser(HttpSession session) {
-
-		User user = (User) session.getAttribute("user");
-
-		if (user == null) {
-			throw new AuthException("User not found");
-		}
-
-		UserResponse response = UserMapper.toResponse(user);
-
-		return new ApiResponse<>(true, "User Found", response);
-	}
-
 	public String logout(HttpSession session) {
 		session.removeAttribute("user");
 		session.setAttribute("pass", "Logout Success");
@@ -179,6 +168,20 @@ public class UserService {
 		session.invalidate();
 
 		return new ApiResponse<>(true, "Logout Successful");
+	}
+
+	public ApiResponse<List<UserResponse>> searchUsers(String username, HttpSession session) {
+
+		sessionService.getLoggedInUser(session);
+
+		if (username == null || username.isBlank()) {
+			return new ApiResponse<>(true, "Users fetched successfully", List.of());
+		}
+
+		List<UserResponse> users = userRepository.findByUsernameContainingIgnoreCaseAndVerifiedTrue(username).stream()
+				.map(UserMapper::toResponse).toList();
+
+		return new ApiResponse<>(true, "Users fetched successfully", users);
 	}
 
 }

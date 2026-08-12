@@ -21,6 +21,7 @@ public class FollowService {
 
 	private final UserRepository userRepository;
 	private final SessionService sessionService;
+	private final NotificationService notificationService;
 
 	private User getUserById(int id) {
 
@@ -56,14 +57,18 @@ public class FollowService {
 			throw new AuthException("You cannot follow yourself");
 		}
 
-		if (!user.getFollowing().contains(toFollow)) {
-
-			user.getFollowing().add(toFollow);
-			toFollow.getFollowers().add(user);
-
-			userRepository.save(user);
-			userRepository.save(toFollow);
+		if (user.getFollowing().contains(toFollow)) {
+			throw new AuthException("User is already being followed");
 		}
+
+		user.getFollowing().add(toFollow);
+		toFollow.getFollowers().add(user);
+
+		userRepository.save(user);
+		userRepository.save(toFollow);
+
+		// Create notification for the followed user.
+		notificationService.createFollowNotification(user, toFollow);
 
 		return new ApiResponse<>(true, "User followed successfully");
 	}
