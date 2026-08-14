@@ -32,5 +32,7 @@ public class PostResponse {
     private boolean liked;
 
     private boolean ownPost;
+    
+    private boolean bookmarked;
 
 }

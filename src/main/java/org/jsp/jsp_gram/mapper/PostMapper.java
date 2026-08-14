@@ -1,79 +1,76 @@
 package org.jsp.jsp_gram.mapper;
 
-
 import org.jsp.jsp_gram.dto.PostResponse;
 import org.jsp.jsp_gram.model.Post;
 import org.jsp.jsp_gram.model.User;
 
+public final class PostMapper {
 
-public class PostMapper {
+	private PostMapper() {
+	}
 
+	public static PostResponse toResponse(Post post) {
 
-    private PostMapper() {
+		return new PostResponse(
 
-    }
+				post.getId(),
 
-    public static PostResponse toResponse(Post post) {
+				post.getCaption(),
 
+				post.getImageUrl(),
 
-        return new PostResponse(
+				post.getPostedTime(),
 
-                post.getId(),
+				UserMapper.toSummaryResponse(post.getUser()),
 
-                post.getCaption(),
+				post.getLikedUsers().size(),
 
-                post.getImageUrl(),
+				post.getComments().size(),
 
-                post.getPostedTime(),
+				false,
 
-                UserMapper.toSummaryResponse(post.getUser()),
+				false,
 
-                post.getLikedUsers().size(),
+				false
 
-                post.getComments().size(),
+		);
+	}
 
-                false,
+	public static PostResponse toResponse(Post post, User loggedInUser) {
 
-                false
+		if (loggedInUser == null) {
+			return toResponse(post);
+		}
 
-        );
+		boolean liked = post.getLikedUsers().stream().anyMatch(user -> user.getId() == loggedInUser.getId());
 
-    }
+		boolean ownPost = post.getUser().getId() == loggedInUser.getId();
 
-    public static PostResponse toResponse(Post post, User loggedInUser) {
+		boolean bookmarked = loggedInUser.getBookmarkedPosts().stream()
+				.anyMatch(bookmarkedPost -> bookmarkedPost.getId() == post.getId());
 
-        boolean liked =
-                post.getLikedUsers()
-                .stream()
-                .anyMatch(
-                    user -> user.getId() == loggedInUser.getId()
-                );
+		return new PostResponse(
 
-        boolean ownPost =
-                post.getUser().getId() == loggedInUser.getId();
+				post.getId(),
 
-        return new PostResponse(
+				post.getCaption(),
 
-                post.getId(),
+				post.getImageUrl(),
 
-                post.getCaption(),
+				post.getPostedTime(),
 
-                post.getImageUrl(),
+				UserMapper.toSummaryResponse(post.getUser()),
 
-                post.getPostedTime(),
+				post.getLikedUsers().size(),
 
-                UserMapper.toSummaryResponse(post.getUser()),
+				post.getComments().size(),
 
-                post.getLikedUsers().size(),
+				liked,
 
-                post.getComments().size(),
+				ownPost,
 
-                liked,
+				bookmarked
 
-                ownPost
-
-        );
-
-    }
-
-}
+		);
+	}
+}	
