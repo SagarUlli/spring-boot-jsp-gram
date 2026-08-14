@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/bookmarks")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class BookmarkController {
 
@@ -25,7 +25,7 @@ public class BookmarkController {
 	/**
 	 * Bookmark a post.
 	 */
-	@PostMapping("/{postId}")
+	@PostMapping("/bookmarks/{postId}")
 	public ApiResponse<PostResponse> bookmarkPost(@PathVariable int postId, HttpSession session) {
 
 		return bookmarkService.bookmarkPost(postId, session);
@@ -34,7 +34,7 @@ public class BookmarkController {
 	/**
 	 * Remove a post from bookmarks.
 	 */
-	@DeleteMapping("/{postId}")
+	@DeleteMapping("/bookmarks/{postId}")
 	public ApiResponse<PostResponse> unbookmarkPost(@PathVariable int postId, HttpSession session) {
 
 		return bookmarkService.unbookmarkPost(postId, session);
@@ -43,7 +43,7 @@ public class BookmarkController {
 	/**
 	 * Get all bookmarked posts.
 	 */
-	@GetMapping
+	@GetMapping("/bookmarks")
 	public ApiResponse<List<PostResponse>> getBookmarks(HttpSession session) {
 
 		return bookmarkService.getBookmarks(session);

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -21,50 +22,82 @@ import lombok.Data;
 @Entity
 @Data
 public class User {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+
 	private String firstname;
+
 	private String lastname;
+
+	@Column(unique = true, nullable = false)
 	private String username;
+
+	@Column(unique = true, nullable = false)
 	private String email;
+
+	@Column(unique = true, nullable = false)
 	private String mobile;
+
 	private String password;
+
 	@Transient
 	private String confirmpassword;
+
 	private String gender;
+
 	private int otp;
+
 	private boolean verified;
+
 	private String bio;
+
 	private String imageUrl;
+
 	private boolean prime;
 
 	@ManyToMany(fetch = FetchType.EAGER)
-	private List<User> following = new ArrayList<>();
+	@JoinTable(
+		name = "user_following",
+		joinColumns = @JoinColumn(name = "user_id"),
+		inverseJoinColumns = @JoinColumn(name = "following_id")
+	)
+	private Set<User> following = new HashSet<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
-	private List<User> followers = new ArrayList<>();
+	@JoinTable(
+		name = "user_followers",
+		joinColumns = @JoinColumn(name = "user_id"),
+		inverseJoinColumns = @JoinColumn(name = "follower_id")
+	)
+	private Set<User> followers = new HashSet<>();
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	@OneToMany(
+		mappedBy = "user",
+		cascade = CascadeType.ALL
+	)
 	private List<Post> posts = new ArrayList<>();
 
 	@ManyToMany
-	@JoinTable(name = "user_bookmarks", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "post_id"))
+	@JoinTable(
+		name = "user_bookmarks",
+		joinColumns = @JoinColumn(name = "user_id"),
+		inverseJoinColumns = @JoinColumn(name = "post_id")
+	)
 	private Set<Post> bookmarkedPosts = new HashSet<>();
 
 	/**
-	 * Check if this user is followed by another user
+	 * Check if this user is followed by another user.
 	 */
 	public boolean isFollowedBy(User other) {
-		if (other == null)
+
+		if (other == null) {
 			return false;
-
-		for (User u : other.getFollowing()) {
-			if (u.getId() == this.id) {
-				return true;
-			}
 		}
-		return false;
-	}
 
+		return other.getFollowing()
+				.stream()
+				.anyMatch(user -> user.getId() == this.id);
+	}
 }

@@ -130,31 +130,38 @@ public class UserService {
 	}
 
 	/* ================= LOGIN / LOGOUT ================= */
-	public ApiResponse<UserResponse> loginRest(String username, String password, HttpSession session) {
+	public ApiResponse<UserResponse> loginRest(
+	        String username,
+	        String password,
+	        HttpSession session) {
 
-		User user = userRepository.findByUsername(username);
+	    User user = userRepository.findByUsername(username);
 
-		if (user == null) {
-			throw new AuthException("User not found");
-		}
+	    if (user == null) {
+	        throw new AuthException("User not found");
+	    }
 
-		if (!AES.decrypt(user.getPassword()).equals(password)) {
-			return new ApiResponse<>(false, "Incorrect Password");
-		}
+	    if (!AES.decrypt(user.getPassword()).equals(password)) {
+	        return new ApiResponse<>(false, "Incorrect Password");
+	    }
 
-		if (!user.isVerified()) {
+	    if (!user.isVerified()) {
 
-			user.setOtp(generateOtp());
-			userRepository.save(user);
+	        user.setOtp(generateOtp());
+	        userRepository.save(user);
 
-			return new ApiResponse<>(false, "Verify Email First");
-		}
+	        return new ApiResponse<>(false, "Verify Email First");
+	    }
 
-		UserResponse response = UserMapper.toResponse(user);
+	    session.setAttribute("user", user);
 
-		session.setAttribute("user", user);
+	    UserResponse response = UserMapper.toResponse(user);
 
-		return new ApiResponse<>(true, "Login Success", response);
+	    return new ApiResponse<>(
+	            true,
+	            "Login Success",
+	            response
+	    );
 	}
 
 	public String logout(HttpSession session) {

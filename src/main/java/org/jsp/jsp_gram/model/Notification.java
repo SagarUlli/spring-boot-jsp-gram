@@ -2,6 +2,7 @@ package org.jsp.jsp_gram.model;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,6 +22,7 @@ public class Notification {
 
 	private String type;
 
+	@Column(name = "is_read", nullable = false)
 	private boolean read;
 
 	private LocalDateTime createdTime;
