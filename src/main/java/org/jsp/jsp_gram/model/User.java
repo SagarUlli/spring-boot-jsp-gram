@@ -16,11 +16,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "users")
 public class User {
 
 	@Id
@@ -58,33 +60,18 @@ public class User {
 	private boolean prime;
 
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(
-		name = "user_following",
-		joinColumns = @JoinColumn(name = "user_id"),
-		inverseJoinColumns = @JoinColumn(name = "following_id")
-	)
+	@JoinTable(name = "user_following", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "following_id"))
 	private Set<User> following = new HashSet<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(
-		name = "user_followers",
-		joinColumns = @JoinColumn(name = "user_id"),
-		inverseJoinColumns = @JoinColumn(name = "follower_id")
-	)
+	@JoinTable(name = "user_followers", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
 	private Set<User> followers = new HashSet<>();
 
-	@OneToMany(
-		mappedBy = "user",
-		cascade = CascadeType.ALL
-	)
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Post> posts = new ArrayList<>();
 
 	@ManyToMany
-	@JoinTable(
-		name = "user_bookmarks",
-		joinColumns = @JoinColumn(name = "user_id"),
-		inverseJoinColumns = @JoinColumn(name = "post_id")
-	)
+	@JoinTable(name = "user_bookmarks", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "post_id"))
 	private Set<Post> bookmarkedPosts = new HashSet<>();
 
 	/**
@@ -96,8 +83,6 @@ public class User {
 			return false;
 		}
 
-		return other.getFollowing()
-				.stream()
-				.anyMatch(user -> user.getId() == this.id);
+		return other.getFollowing().stream().anyMatch(user -> user.getId() == this.id);
 	}
 }
