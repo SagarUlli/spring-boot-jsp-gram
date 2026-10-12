@@ -12,6 +12,7 @@ import org.jsp.jsp_gram.model.Post;
 import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,8 @@ public class NotificationService {
 	/**
 	 * Create a FOLLOW notification.
 	 */
+
+	@Transactional
 	public void createFollowNotification(User sender, User recipient) {
 
 		if (sender.getId() == recipient.getId()) {
@@ -50,6 +53,8 @@ public class NotificationService {
 	/**
 	 * Create a LIKE notification.
 	 */
+
+	@Transactional
 	public void createLikeNotification(User sender, Post post) {
 
 		User recipient = post.getUser();
@@ -75,6 +80,8 @@ public class NotificationService {
 	/**
 	 * Create a COMMENT notification.
 	 */
+
+	@Transactional
 	public void createCommentNotification(User sender, Post post) {
 
 		User recipient = post.getUser();
@@ -100,6 +107,8 @@ public class NotificationService {
 	/**
 	 * Get all notifications for the logged-in user.
 	 */
+
+	@Transactional(readOnly = true)
 	public ApiResponse<List<NotificationResponse>> getNotifications(HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -113,6 +122,8 @@ public class NotificationService {
 	/**
 	 * Get unread notification count.
 	 */
+
+	@Transactional(readOnly = true)
 	public ApiResponse<Long> getUnreadCount(HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -125,6 +136,8 @@ public class NotificationService {
 	/**
 	 * Mark a single notification as read.
 	 */
+
+	@Transactional
 	public ApiResponse<Void> markAsRead(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -146,6 +159,8 @@ public class NotificationService {
 	/**
 	 * Mark all notifications as read.
 	 */
+
+	@Transactional
 	public ApiResponse<Void> markAllAsRead(HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);

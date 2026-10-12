@@ -9,6 +9,7 @@ import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
@@ -53,6 +54,8 @@ public class PaymentService {
 	/**
 	 * Verify payment.
 	 */
+
+	@Transactional
 	public ApiResponse<Void> verifyPayment(VerifyPaymentRequest request, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -71,6 +74,8 @@ public class PaymentService {
 	/**
 	 * Get payment status.
 	 */
+
+	@Transactional(readOnly = true)
 	public ApiResponse<PaymentStatusResponse> getPaymentStatus(HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);

@@ -48,6 +48,7 @@ public class UserService {
 	}
 
 	/* ================= REGISTER ================= */
+	@Transactional
 	public ApiResponse<Integer> registerRest(RegisterRequest request, HttpSession session) {
 
 		Map<String, String> errors = new HashMap<>();
@@ -93,6 +94,7 @@ public class UserService {
 		return new ApiResponse<>(true, "OTP sent successfully", user.getId());
 	}
 
+	@Transactional
 	public ApiResponse<Void> verifyOtpRest(int id, int otp, HttpSession session) {
 
 		Optional<User> optUser = userRepository.findById(id);
@@ -117,6 +119,7 @@ public class UserService {
 		return new ApiResponse<>(true, "Account verified successfully");
 	}
 
+	@Transactional
 	public ApiResponse<Void> resendOtpRest(int userId, HttpSession session) {
 
 		User user = userRepository.findById(userId).orElseThrow(() -> new AuthException("User not found"));

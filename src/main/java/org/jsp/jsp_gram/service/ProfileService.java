@@ -9,6 +9,7 @@ import org.jsp.jsp_gram.mapper.UserMapper;
 import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,8 @@ public class ProfileService {
 	/**
 	 * Update profile.
 	 */
+
+	@Transactional
 	public ApiResponse<UserResponse> updateProfile(ProfileRequest request, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);

@@ -9,6 +9,7 @@ import org.jsp.jsp_gram.mapper.UserMapper;
 import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,8 @@ public class FollowService {
 	/**
 	 * Get user suggestions.
 	 */
+
+	@Transactional(readOnly = true)
 	public ApiResponse<List<UserResponse>> getSuggestions(HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -47,6 +50,8 @@ public class FollowService {
 	/**
 	 * Follow User.
 	 */
+
+	@Transactional
 	public ApiResponse<Void> followUser(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -76,6 +81,8 @@ public class FollowService {
 	/**
 	 * Unfollow User.
 	 */
+
+	@Transactional
 	public ApiResponse<Void> unfollowUser(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -98,6 +105,8 @@ public class FollowService {
 	/**
 	 * Get Followers.
 	 */
+
+	@Transactional(readOnly = true)
 	public ApiResponse<List<UserResponse>> getFollowers(HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -110,6 +119,8 @@ public class FollowService {
 	/**
 	 * Get Following.
 	 */
+
+	@Transactional(readOnly = true)
 	public ApiResponse<List<UserResponse>> getFollowing(HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);

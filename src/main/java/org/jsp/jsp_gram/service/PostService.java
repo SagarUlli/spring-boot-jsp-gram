@@ -13,6 +13,7 @@ import org.jsp.jsp_gram.model.Post;
 import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.PostRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ public class PostService {
 
 	}
 
+	@Transactional
 	public ApiResponse<PostResponse> createPostRest(PostRequest request, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -67,6 +69,7 @@ public class PostService {
 
 	}
 
+	@Transactional(readOnly = true)
 	public ApiResponse<List<PostResponse>> getFeed(HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -83,6 +86,7 @@ public class PostService {
 
 	}
 
+	@Transactional(readOnly = true)
 	public ApiResponse<PostResponse> getPost(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -93,6 +97,7 @@ public class PostService {
 
 	}
 
+	@Transactional
 	public ApiResponse<PostResponse> updatePost(int id, PostRequest request, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -115,6 +120,7 @@ public class PostService {
 
 	}
 
+	@Transactional
 	public ApiResponse<Void> deletePost(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -131,6 +137,7 @@ public class PostService {
 
 	// LIKE
 
+	@Transactional
 	public ApiResponse<PostResponse> likePost(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);
@@ -151,6 +158,7 @@ public class PostService {
 
 	// UNLIKE
 
+	@Transactional
 	public ApiResponse<PostResponse> unlikePost(int id, HttpSession session) {
 
 		User user = sessionService.getLoggedInUser(session);

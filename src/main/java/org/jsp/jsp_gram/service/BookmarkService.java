@@ -11,6 +11,7 @@ import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.PostRepository;
 import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,8 @@ public class BookmarkService {
 	/**
 	 * Bookmark a post.
 	 */
+
+	@Transactional
 	public ApiResponse<PostResponse> bookmarkPost(int postId, HttpSession session) {
 
 		User user = getLoggedInUser(session);
@@ -64,6 +67,8 @@ public class BookmarkService {
 	/**
 	 * Remove a post from bookmarks.
 	 */
+
+	@Transactional
 	public ApiResponse<PostResponse> unbookmarkPost(int postId, HttpSession session) {
 
 		User user = getLoggedInUser(session);
@@ -83,6 +88,8 @@ public class BookmarkService {
 	/**
 	 * Get all posts bookmarked by the logged-in user.
 	 */
+
+	@Transactional(readOnly = true)
 	public ApiResponse<List<PostResponse>> getBookmarks(HttpSession session) {
 
 		User user = getLoggedInUser(session);

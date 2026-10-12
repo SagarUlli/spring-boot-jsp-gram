@@ -13,6 +13,7 @@ import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.CommentRepository;
 import org.jsp.jsp_gram.repository.PostRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ public class CommentService {
 
 	// ADD COMMENT
 
+	@Transactional
 	public ApiResponse<CommentResponse> addComment(
 
 			int postId,
@@ -81,6 +83,7 @@ public class CommentService {
 
 	// GET COMMENTS
 
+	@Transactional(readOnly = true)
 	public ApiResponse<List<CommentResponse>> getComments(
 
 			int postId,
@@ -117,6 +120,7 @@ public class CommentService {
 
 	// DELETE COMMENT
 
+	@Transactional
 	public ApiResponse<Void> deleteComment(
 
 			int commentId,
