@@ -16,6 +16,7 @@ import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -130,38 +131,32 @@ public class UserService {
 	}
 
 	/* ================= LOGIN / LOGOUT ================= */
-	public ApiResponse<UserResponse> loginRest(
-	        String username,
-	        String password,
-	        HttpSession session) {
+	@Transactional
+	public ApiResponse<UserResponse> loginRest(String username, String password, HttpSession session) {
 
-	    User user = userRepository.findByUsername(username);
+		User user = userRepository.findByUsername(username);
 
-	    if (user == null) {
-	        throw new AuthException("User not found");
-	    }
+		if (user == null) {
+			throw new AuthException("User not found");
+		}
 
-	    if (!AES.decrypt(user.getPassword()).equals(password)) {
-	        return new ApiResponse<>(false, "Incorrect Password");
-	    }
+		if (!AES.decrypt(user.getPassword()).equals(password)) {
+			return new ApiResponse<>(false, "Incorrect Password");
+		}
 
-	    if (!user.isVerified()) {
+		if (!user.isVerified()) {
 
-	        user.setOtp(generateOtp());
-	        userRepository.save(user);
+			user.setOtp(generateOtp());
+			userRepository.save(user);
 
-	        return new ApiResponse<>(false, "Verify Email First");
-	    }
+			return new ApiResponse<>(false, "Verify Email First");
+		}
 
-	    session.setAttribute("user", user);
+		session.setAttribute("user", user);
 
-	    UserResponse response = UserMapper.toResponse(user);
+		UserResponse response = UserMapper.toResponse(user);
 
-	    return new ApiResponse<>(
-	            true,
-	            "Login Success",
-	            response
-	    );
+		return new ApiResponse<>(true, "Login Success", response);
 	}
 
 	public String logout(HttpSession session) {
