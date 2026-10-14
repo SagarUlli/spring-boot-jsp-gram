@@ -148,13 +148,13 @@ public class UserService {
 		}
 
 		if (!user.isVerified()) {
-
 			user.setOtp(generateOtp());
 			userRepository.save(user);
 
 			return new ApiResponse<>(false, "Verify Email First");
 		}
 
+		// Prevent session fixation and establish the authenticated session.
 		session.setAttribute("user", user);
 
 		UserResponse response = UserMapper.toResponse(user);

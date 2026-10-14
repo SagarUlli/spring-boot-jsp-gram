@@ -46,7 +46,7 @@ public final class PostMapper {
 
 		boolean ownPost = post.getUser().getId() == loggedInUser.getId();
 
-		boolean bookmarked = loggedInUser.getBookmarkedPosts().stream()
+		boolean bookmarked = loggedInUser.getBookmarkedPosts() != null && loggedInUser.getBookmarkedPosts().stream()
 				.anyMatch(bookmarkedPost -> bookmarkedPost.getId() == post.getId());
 
 		return new PostResponse(
@@ -73,4 +73,4 @@ public final class PostMapper {
 
 		);
 	}
-}	
+}

@@ -18,6 +18,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -77,7 +78,8 @@ public class User {
 	private List<Post> posts = new ArrayList<>();
 
 	@ManyToMany
-	@JoinTable(name = "user_bookmarks", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "post_id"))
+	@JoinTable(name = "user_bookmarks", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "post_id"), uniqueConstraints = @UniqueConstraint(columnNames = {
+			"user_id", "post_id" }))
 	private Set<Post> bookmarkedPosts = new HashSet<>();
 
 	/**
