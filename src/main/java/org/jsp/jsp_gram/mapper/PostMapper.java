@@ -11,29 +11,9 @@ public final class PostMapper {
 
 	public static PostResponse toResponse(Post post) {
 
-		return new PostResponse(
-
-				post.getId(),
-
-				post.getCaption(),
-
-				post.getImageUrl(),
-
-				post.getPostedTime(),
-
-				UserMapper.toSummaryResponse(post.getUser()),
-
-				post.getLikedUsers().size(),
-
-				post.getComments().size(),
-
-				false,
-
-				false,
-
-				false
-
-		);
+		return new PostResponse(post.getId(), post.getCaption(), post.getImageUrl(), post.getPostedTime(),
+				UserMapper.toSummaryResponse(post.getUser()), post.getLikedUsers().size(), post.getComments().size(),
+				false, false, false, post.getShareCount());
 	}
 
 	public static PostResponse toResponse(Post post, User loggedInUser) {
@@ -49,28 +29,9 @@ public final class PostMapper {
 		boolean bookmarked = loggedInUser.getBookmarkedPosts() != null && loggedInUser.getBookmarkedPosts().stream()
 				.anyMatch(bookmarkedPost -> bookmarkedPost.getId() == post.getId());
 
-		return new PostResponse(
-
-				post.getId(),
-
-				post.getCaption(),
-
-				post.getImageUrl(),
-
-				post.getPostedTime(),
-
-				UserMapper.toSummaryResponse(post.getUser()),
-
-				post.getLikedUsers().size(),
-
-				post.getComments().size(),
-
-				liked,
-
-				ownPost,
-
-				bookmarked
-
-		);
+		return new PostResponse(post.getId(), post.getCaption(), post.getImageUrl(), post.getPostedTime(),
+				UserMapper.toSummaryResponse(post.getUser()), post.getLikedUsers().size(), post.getComments().size(),
+				liked, ownPost, bookmarked, post.getShareCount());
 	}
+
 }

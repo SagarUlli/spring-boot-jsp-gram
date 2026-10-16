@@ -173,4 +173,20 @@ public class PostService {
 
 	}
 
+	// SHARE POST
+
+	@Transactional
+	public ApiResponse<PostResponse> sharePost(int id, HttpSession session) {
+		User currentUser = sessionService.getLoggedInUser(session);
+
+		Post post = postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
+
+		post.setShareCount(post.getShareCount() + 1);
+		post = postRepository.save(post);
+
+		PostResponse response = PostMapper.toResponse(post, currentUser);
+
+		return new ApiResponse<>(true, "Post shared successfully", response);
+	}
+
 }

@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -27,94 +28,87 @@ import lombok.Data;
 @Data
 public class Post {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+	private String imageUrl;
 
-    private String imageUrl;
+	private String caption;
 
-    private String caption;
+	@Column(nullable = false)
+	private long shareCount = 0;
 
-    @UpdateTimestamp
-    private LocalDateTime postedTime;
+	@UpdateTimestamp
+	private LocalDateTime postedTime;
 
-    // Post owner
+	// Post owner
 
-    @ManyToOne
-    private User user;
+	@ManyToOne
+	private User user;
 
-    // Used only for image upload
+	// Used only for image upload
 
-    @Transient
-    private MultipartFile image;
+	@Transient
+	private MultipartFile image;
 
-    // Users who liked this post
+	// Users who liked this post
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "post_likes",
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "post_likes",
 
-        joinColumns = @JoinColumn(name = "post_id"),
+			joinColumns = @JoinColumn(name = "post_id"),
 
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> likedUsers = new HashSet<>();
+			inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> likedUsers = new HashSet<>();
 
-    // Comments on this post
+	// Comments on this post
 
-    @OneToMany(
-        mappedBy = "post",
-        fetch = FetchType.EAGER,
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-    )
-    private List<Comment> comments = new ArrayList<>();
-    /*
-     * Check if current user liked this post
-     */
+	@OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Comment> comments = new ArrayList<>();
+	/*
+	 * Check if current user liked this post
+	 */
 
-    public boolean hasLiked(int userId) {
+	public boolean hasLiked(int userId) {
 
-        return likedUsers
-                .stream()
-                .anyMatch(user -> user.getId() == userId);
+		return likedUsers.stream().anyMatch(user -> user.getId() == userId);
 
-    }
-    /*
-     * Add like
-     */
+	}
+	/*
+	 * Add like
+	 */
 
-    public void addLike(User user) {
+	public void addLike(User user) {
 
-        likedUsers.add(user);
+		likedUsers.add(user);
 
-    }
-    /*
-     * Remove like
-     */
+	}
+	/*
+	 * Remove like
+	 */
 
-    public void removeLike(User user) {
+	public void removeLike(User user) {
 
-        likedUsers.remove(user);
+		likedUsers.remove(user);
 
-    }
-    /*
-     * Total likes count
-     */
+	}
+	/*
+	 * Total likes count
+	 */
 
-    public int getLikesCount() {
+	public int getLikesCount() {
 
-        return likedUsers.size();
+		return likedUsers.size();
 
-    }
-    /*
-     * Total comments count
-     */
+	}
+	/*
+	 * Total comments count
+	 */
 
-    public int getCommentsCount() {
+	public int getCommentsCount() {
 
-        return comments.size();
+		return comments.size();
 
-    }
+	}
 }

@@ -34,5 +34,7 @@ public class PostResponse {
     private boolean ownPost;
     
     private boolean bookmarked;
+    
+    private long shareCount;
 
 }

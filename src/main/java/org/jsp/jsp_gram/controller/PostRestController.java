@@ -78,4 +78,9 @@ public class PostRestController {
 
 	}
 
+	@PostMapping("/{id}/share")
+	public ApiResponse<PostResponse> sharePost(@PathVariable int id, HttpSession session) {
+		return postService.sharePost(id, session);
+	}
+
 }
