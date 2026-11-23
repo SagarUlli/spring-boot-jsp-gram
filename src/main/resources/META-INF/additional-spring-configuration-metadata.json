@@ -1,0 +1,57 @@
+{"properties": [
+  {
+    "name": "app.cors.allowed-origins",
+    "type": "java.lang.String",
+    "description": "A description for 'app.cors.allowed-origins'"
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "jwt.expiration-minutes",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.expiration-minutes'"
+  },
+  {
+    "name": "app.otp.ttl-minutes",
+    "type": "java.lang.String",
+    "description": "A description for 'app.otp.ttl-minutes'"
+  },
+  {
+    "name": "app.otp.resend-cooldown-seconds",
+    "type": "java.lang.String",
+    "description": "A description for 'app.otp.resend-cooldown-seconds'"
+  },
+  {
+    "name": "app.otp.max-attempts",
+    "type": "java.lang.String",
+    "description": "A description for 'app.otp.max-attempts'"
+  },
+  {
+    "name": "app.otp.email-enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'app.otp.email-enabled'"
+  },
+  {
+    "name": "app.feed-cache.ttl-seconds",
+    "type": "java.lang.String",
+    "description": "A description for 'app.feed-cache.ttl-seconds'"
+  },
+  {
+    "name": "cloudinary.url",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudinary.url'"
+  },
+  {
+    "name": "razorpay.key",
+    "type": "java.lang.String",
+    "description": "A description for 'razorpay.key'"
+  },
+  {
+    "name": "razorpay.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'razorpay.secret'"
+  }
+]}
