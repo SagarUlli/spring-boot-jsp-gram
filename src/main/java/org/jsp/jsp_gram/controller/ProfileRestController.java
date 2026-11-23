@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,20 +22,20 @@ public class ProfileRestController {
 	private final ProfileService profileService;
 
 	@GetMapping
-	public ApiResponse<UserResponse> getMyProfile(HttpSession session) {
+	public ApiResponse<UserResponse> getMyProfile() {
 
-		return profileService.getMyProfile(session);
+		return profileService.getMyProfile();
 	}
 
 	@GetMapping("/{id}")
-	public ApiResponse<UserResponse> getProfile(@PathVariable int id, HttpSession session) {
+	public ApiResponse<UserResponse> getProfile(@PathVariable int id) {
 
-		return profileService.getProfile(id, session);
+		return profileService.getProfile(id);
 	}
 
 	@PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ApiResponse<UserResponse> updateProfile(@ModelAttribute ProfileRequest request, HttpSession session) {
+	public ApiResponse<UserResponse> updateProfile(@ModelAttribute ProfileRequest request) {
 
-		return profileService.updateProfile(request, session);
+		return profileService.updateProfile(request);
 	}
 }

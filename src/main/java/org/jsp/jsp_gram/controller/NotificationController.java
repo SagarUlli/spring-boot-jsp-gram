@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,26 +21,26 @@ public class NotificationController {
 	private final NotificationService notificationService;
 
 	@GetMapping
-	public ApiResponse<List<NotificationResponse>> getNotifications(HttpSession session) {
+	public ApiResponse<List<NotificationResponse>> getNotifications() {
 
-		return notificationService.getNotifications(session);
+		return notificationService.getNotifications();
 	}
 
 	@GetMapping("/unread-count")
-	public ApiResponse<Long> getUnreadCount(HttpSession session) {
+	public ApiResponse<Long> getUnreadCount() {
 
-		return notificationService.getUnreadCount(session);
+		return notificationService.getUnreadCount();
 	}
 
 	@PostMapping("/{id}/read")
-	public ApiResponse<Void> markAsRead(@PathVariable int id, HttpSession session) {
+	public ApiResponse<Void> markAsRead(@PathVariable int id) {
 
-		return notificationService.markAsRead(id, session);
+		return notificationService.markAsRead(id);
 	}
 
 	@PostMapping("/read-all")
-	public ApiResponse<Void> markAllAsRead(HttpSession session) {
+	public ApiResponse<Void> markAllAsRead() {
 
-		return notificationService.markAllAsRead(session);
+		return notificationService.markAllAsRead();
 	}
 }

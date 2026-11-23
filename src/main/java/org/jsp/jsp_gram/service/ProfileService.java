@@ -11,7 +11,6 @@ import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,15 +20,16 @@ import lombok.extern.slf4j.Slf4j;
 public class ProfileService {
 
 	private final UserRepository userRepository;
-	private final SessionService sessionService;
+	private final CurrentUserService currentUserService;
 	private final CloudinaryHelper cloudinaryHelper;
+	private final FeedCacheService feedCacheService;
 
 	/**
 	 * Get logged-in user's profile.
 	 */
-	public ApiResponse<UserResponse> getMyProfile(HttpSession session) {
+	public ApiResponse<UserResponse> getMyProfile() {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		return new ApiResponse<>(true, "Profile fetched successfully", UserMapper.toResponse(user));
 	}
@@ -37,9 +37,9 @@ public class ProfileService {
 	/**
 	 * Get another user's profile.
 	 */
-	public ApiResponse<UserResponse> getProfile(int id, HttpSession session) {
+	public ApiResponse<UserResponse> getProfile(int id) {
 
-		sessionService.getLoggedInUser(session);
+		currentUserService.getLoggedInUser();
 
 		User user = userRepository.findById(id).orElseThrow(() -> new AuthException("User not found"));
 
@@ -51,9 +51,9 @@ public class ProfileService {
 	 */
 
 	@Transactional
-	public ApiResponse<UserResponse> updateProfile(ProfileRequest request, HttpSession session) {
+	public ApiResponse<UserResponse> updateProfile(ProfileRequest request) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		user.setFirstname(request.getFirstname());
 		user.setLastname(request.getLastname());
@@ -65,7 +65,8 @@ public class ProfileService {
 
 		user = userRepository.save(user);
 
-		session.setAttribute("user", user);
+		// Name/photo appear on this user's posts in their followers' feeds.
+		feedCacheService.evictAuthorAndFollowers(user);
 
 		return new ApiResponse<>(true, "Profile updated successfully", UserMapper.toResponse(user));
 	}

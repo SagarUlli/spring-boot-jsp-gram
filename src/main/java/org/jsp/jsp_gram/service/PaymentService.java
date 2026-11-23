@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,15 +26,15 @@ public class PaymentService {
 	@Value("${razorpay.secret}")
 	private String razorpaySecret;
 
-	private final SessionService sessionService;
+	private final CurrentUserService currentUserService;
 	private final UserRepository userRepository;
 
 	/**
 	 * Create Razorpay Order.
 	 */
-	public ApiResponse<PaymentResponse> createOrder(HttpSession session) throws Exception {
+	public ApiResponse<PaymentResponse> createOrder() throws Exception {
 
-		sessionService.getLoggedInUser(session);
+		currentUserService.getLoggedInUser();
 
 		RazorpayClient client = new RazorpayClient(razorpayKey, razorpaySecret);
 
@@ -56,17 +55,15 @@ public class PaymentService {
 	 */
 
 	@Transactional
-	public ApiResponse<Void> verifyPayment(VerifyPaymentRequest request, HttpSession session) {
+	public ApiResponse<Void> verifyPayment(VerifyPaymentRequest request) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		// TODO: Verify Razorpay signature before updating user
 
 		user.setPrime(true);
 
 		userRepository.save(user);
-
-		session.setAttribute("user", user);
 
 		return new ApiResponse<>(true, "Payment verified successfully");
 	}
@@ -76,9 +73,9 @@ public class PaymentService {
 	 */
 
 	@Transactional(readOnly = true)
-	public ApiResponse<PaymentStatusResponse> getPaymentStatus(HttpSession session) {
+	public ApiResponse<PaymentStatusResponse> getPaymentStatus() {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		PaymentStatusResponse response = new PaymentStatusResponse(user.isPrime());
 

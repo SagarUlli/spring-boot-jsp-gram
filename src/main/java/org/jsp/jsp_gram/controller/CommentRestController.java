@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -32,13 +31,11 @@ public class CommentRestController {
 
 			@PathVariable int postId,
 
-			@RequestBody @Valid CommentRequest request,
-
-			HttpSession session
+			@RequestBody @Valid CommentRequest request
 
 	) {
 
-		return commentService.addComment(postId, request, session);
+		return commentService.addComment(postId, request);
 
 	}
 
@@ -47,13 +44,11 @@ public class CommentRestController {
 	@GetMapping("/{postId}")
 	public ApiResponse<List<CommentResponse>> getComments(
 
-			@PathVariable int postId,
-
-			HttpSession session
+			@PathVariable int postId
 
 	) {
 
-		return commentService.getComments(postId, session);
+		return commentService.getComments(postId);
 
 	}
 
@@ -62,13 +57,11 @@ public class CommentRestController {
 	@DeleteMapping("/{commentId}")
 	public ApiResponse<Void> deleteComment(
 
-			@PathVariable int commentId,
-
-			HttpSession session
+			@PathVariable int commentId
 
 	) {
 
-		return commentService.deleteComment(commentId, session);
+		return commentService.deleteComment(commentId);
 
 	}
 

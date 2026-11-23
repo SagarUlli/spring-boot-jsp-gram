@@ -3,10 +3,9 @@ package org.jsp.jsp_gram.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
 
 import org.jsp.jsp_gram.dto.ApiResponse;
+import org.jsp.jsp_gram.dto.AuthResponse;
 import org.jsp.jsp_gram.dto.RegisterRequest;
 import org.jsp.jsp_gram.dto.UserResponse;
 import org.jsp.jsp_gram.exception.AuthException;
@@ -14,11 +13,11 @@ import org.jsp.jsp_gram.helper.AES;
 import org.jsp.jsp_gram.mapper.UserMapper;
 import org.jsp.jsp_gram.model.User;
 import org.jsp.jsp_gram.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Value;
+import org.jsp.jsp_gram.security.JwtService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,29 +26,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserService {
 
-	private static final String REDIRECT = "redirect:/";
-	private static final String LOGIN = "login";
-	private final SessionService sessionService;
-
-	@Value("${razorpay.key}")
-	private String razorpayKey;
-
-	@Value("${razorpay.secret}")
-	private String razorpaySecret;
-
-	private static final Random RANDOM = new Random();
-
+	private final CurrentUserService currentUserService;
 	private final UserRepository userRepository;
-//	private final EmailSender emailSender;
-
-	/* ================= SESSION HANDLING ================= */
-	private int generateOtp() {
-		return RANDOM.nextInt(900000) + 100000;
-	}
+	private final PasswordEncoder passwordEncoder;
+	private final JwtService jwtService;
+	private final OtpService otpService;
 
 	/* ================= REGISTER ================= */
 	@Transactional
-	public ApiResponse<Integer> registerRest(RegisterRequest request, HttpSession session) {
+	public ApiResponse<Integer> registerRest(RegisterRequest request) {
 
 		Map<String, String> errors = new HashMap<>();
 
@@ -82,60 +67,66 @@ public class UserService {
 		user.setGender(request.getGender());
 		user.setUsername(request.getUsername());
 
-		user.setPassword(AES.encrypt(request.getPassword()));
-
-		int otp = generateOtp();
-		user.setOtp(otp);
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
 
 		userRepository.save(user);
 
-		session.setAttribute("pass", "OTP Sent Success");
+		otpService.issueOtp(user);
 
 		return new ApiResponse<>(true, "OTP sent successfully", user.getId());
 	}
 
 	@Transactional
-	public ApiResponse<Void> verifyOtpRest(int id, int otp, HttpSession session) {
+	public ApiResponse<Void> verifyOtpRest(Integer id, Integer otp) {
 
-		Optional<User> optUser = userRepository.findById(id);
+		if (id == null || otp == null) {
+			return new ApiResponse<>(false, "User id and OTP are required");
+		}
 
-		if (optUser.isEmpty()) {
+		User user = userRepository.findById(id).orElse(null);
+
+		if (user == null) {
 			return new ApiResponse<>(false, "User not found");
 		}
 
-		User user = optUser.get();
+		if (user.isVerified()) {
+			return new ApiResponse<>(false, "Account is already verified");
+		}
 
-		if (user.getOtp() != otp) {
+		if (!otpService.verifyOtp(user.getId(), otp)) {
 			return new ApiResponse<>(false, "Invalid OTP");
 		}
 
 		user.setVerified(true);
-		user.setOtp(0);
 
 		userRepository.save(user);
-
-		session.setAttribute("pass", "Account Created Success");
 
 		return new ApiResponse<>(true, "Account verified successfully");
 	}
 
-	@Transactional
-	public ApiResponse<Void> resendOtpRest(int userId, HttpSession session) {
+	@Transactional(readOnly = true)
+	public ApiResponse<Void> resendOtpRest(Integer userId) {
+
+		if (userId == null) {
+			return new ApiResponse<>(false, "User id is required");
+		}
 
 		User user = userRepository.findById(userId).orElseThrow(() -> new AuthException("User not found"));
 
-		user.setOtp(generateOtp());
+		if (user.isVerified()) {
+			return new ApiResponse<>(false, "Account is already verified");
+		}
 
-		userRepository.save(user);
-
-		session.setAttribute("pass", "OTP Sent Success");
+		if (!otpService.issueOtp(user)) {
+			return new ApiResponse<>(false, "Please wait a minute before requesting another OTP");
+		}
 
 		return new ApiResponse<>(true, "OTP sent successfully");
 	}
 
 	/* ================= LOGIN / LOGOUT ================= */
 	@Transactional
-	public ApiResponse<UserResponse> loginRest(String username, String password, HttpSession session) {
+	public ApiResponse<AuthResponse> loginRest(String username, String password) {
 
 		User user = userRepository.findByUsername(username);
 
@@ -143,41 +134,37 @@ public class UserService {
 			throw new AuthException("User not found");
 		}
 
-		if (!AES.decrypt(user.getPassword()).equals(password)) {
+		if (!passwordMatches(user, password)) {
 			return new ApiResponse<>(false, "Incorrect Password");
 		}
 
 		if (!user.isVerified()) {
-			user.setOtp(generateOtp());
-			userRepository.save(user);
+			// If an OTP was sent very recently the existing one is still valid.
+			otpService.issueOtp(user);
 
 			return new ApiResponse<>(false, "Verify Email First");
 		}
 
-		// Prevent session fixation and establish the authenticated session.
-		session.setAttribute("user", user);
+		UserResponse userResponse = UserMapper.toResponse(user);
 
-		UserResponse response = UserMapper.toResponse(user);
+		AuthResponse response = new AuthResponse(jwtService.generateToken(user), "Bearer",
+				jwtService.getExpirationSeconds(), userResponse);
 
 		return new ApiResponse<>(true, "Login Success", response);
 	}
 
-	public String logout(HttpSession session) {
-		session.removeAttribute("user");
-		session.setAttribute("pass", "Logout Success");
-		return REDIRECT + LOGIN;
-	}
-
-	public ApiResponse<Void> logoutRest(HttpSession session) {
-
-		session.invalidate();
+	/**
+	 * JWTs are stateless, so there is nothing to invalidate on the server: the
+	 * client logs out by discarding its token.
+	 */
+	public ApiResponse<Void> logoutRest() {
 
 		return new ApiResponse<>(true, "Logout Successful");
 	}
 
-	public ApiResponse<List<UserResponse>> searchUsers(String username, HttpSession session) {
+	public ApiResponse<List<UserResponse>> searchUsers(String username) {
 
-		sessionService.getLoggedInUser(session);
+		currentUserService.getLoggedInUser();
 
 		if (username == null || username.isBlank()) {
 			return new ApiResponse<>(true, "Users fetched successfully", List.of());
@@ -187,6 +174,35 @@ public class UserService {
 				.map(UserMapper::toResponse).toList();
 
 		return new ApiResponse<>(true, "Users fetched successfully", users);
+	}
+
+	/**
+	 * Checks the password against BCrypt. Accounts created before the Spring
+	 * Security migration still hold the old reversible AES value; those are
+	 * verified the old way once and immediately re-saved as BCrypt, so the legacy
+	 * format disappears as users log in.
+	 */
+	private boolean passwordMatches(User user, String rawPassword) {
+
+		String stored = user.getPassword();
+
+		if (stored == null || rawPassword == null) {
+			return false;
+		}
+
+		if (stored.startsWith("$2")) {
+			return passwordEncoder.matches(rawPassword, stored);
+		}
+
+		String legacyPlain = AES.decrypt(stored);
+
+		if (legacyPlain != null && legacyPlain.equals(rawPassword)) {
+			user.setPassword(passwordEncoder.encode(rawPassword));
+			userRepository.save(user);
+			return true;
+		}
+
+		return false;
 	}
 
 }
