@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -26,26 +25,26 @@ public class BookmarkController {
 	 * Bookmark a post.
 	 */
 	@PostMapping("/bookmarks/{postId}")
-	public ApiResponse<PostResponse> bookmarkPost(@PathVariable int postId, HttpSession session) {
+	public ApiResponse<PostResponse> bookmarkPost(@PathVariable int postId) {
 
-		return bookmarkService.bookmarkPost(postId, session);
+		return bookmarkService.bookmarkPost(postId);
 	}
 
 	/**
 	 * Remove a post from bookmarks.
 	 */
 	@DeleteMapping("/bookmarks/{postId}")
-	public ApiResponse<PostResponse> unbookmarkPost(@PathVariable int postId, HttpSession session) {
+	public ApiResponse<PostResponse> unbookmarkPost(@PathVariable int postId) {
 
-		return bookmarkService.unbookmarkPost(postId, session);
+		return bookmarkService.unbookmarkPost(postId);
 	}
 
 	/**
 	 * Get all bookmarked posts.
 	 */
 	@GetMapping("/bookmarks")
-	public ApiResponse<List<PostResponse>> getBookmarks(HttpSession session) {
+	public ApiResponse<List<PostResponse>> getBookmarks() {
 
-		return bookmarkService.getBookmarks(session);
+		return bookmarkService.getBookmarks();
 	}
 }

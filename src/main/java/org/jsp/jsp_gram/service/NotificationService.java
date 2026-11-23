@@ -14,7 +14,6 @@ import org.jsp.jsp_gram.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationService {
 
 	private final NotificationRepository notificationRepository;
-	private final SessionService sessionService;
+	private final CurrentUserService currentUserService;
 
 	/**
 	 * Create a FOLLOW notification.
@@ -109,9 +108,9 @@ public class NotificationService {
 	 */
 
 	@Transactional(readOnly = true)
-	public ApiResponse<List<NotificationResponse>> getNotifications(HttpSession session) {
+	public ApiResponse<List<NotificationResponse>> getNotifications() {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		List<NotificationResponse> notifications = notificationRepository.findByRecipientOrderByCreatedTimeDesc(user)
 				.stream().map(NotificationMapper::toResponse).toList();
@@ -124,9 +123,9 @@ public class NotificationService {
 	 */
 
 	@Transactional(readOnly = true)
-	public ApiResponse<Long> getUnreadCount(HttpSession session) {
+	public ApiResponse<Long> getUnreadCount() {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		long count = notificationRepository.countByRecipientAndReadFalse(user);
 
@@ -138,9 +137,9 @@ public class NotificationService {
 	 */
 
 	@Transactional
-	public ApiResponse<Void> markAsRead(int id, HttpSession session) {
+	public ApiResponse<Void> markAsRead(int id) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Notification notification = notificationRepository.findById(id)
 				.orElseThrow(() -> new AuthException("Notification not found"));
@@ -161,9 +160,9 @@ public class NotificationService {
 	 */
 
 	@Transactional
-	public ApiResponse<Void> markAllAsRead(HttpSession session) {
+	public ApiResponse<Void> markAllAsRead() {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		List<Notification> notifications = notificationRepository.findByRecipientOrderByCreatedTimeDesc(user);
 

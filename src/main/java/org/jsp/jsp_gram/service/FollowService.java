@@ -11,7 +11,6 @@ import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,8 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 public class FollowService {
 
 	private final UserRepository userRepository;
-	private final SessionService sessionService;
+	private final CurrentUserService currentUserService;
 	private final NotificationService notificationService;
+	private final FeedCacheService feedCacheService;
 
 	private User getUserById(int id) {
 
@@ -34,9 +34,9 @@ public class FollowService {
 	 */
 
 	@Transactional(readOnly = true)
-	public ApiResponse<List<UserResponse>> getSuggestions(HttpSession session) {
+	public ApiResponse<List<UserResponse>> getSuggestions() {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		List<User> suggestions = userRepository.findByVerifiedTrue();
 
@@ -52,9 +52,9 @@ public class FollowService {
 	 */
 
 	@Transactional
-	public ApiResponse<Void> followUser(int id, HttpSession session) {
+	public ApiResponse<Void> followUser(int id) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		User toFollow = getUserById(id);
 
@@ -72,6 +72,9 @@ public class FollowService {
 		userRepository.save(user);
 		userRepository.save(toFollow);
 
+		// The feed now includes the followed user's posts.
+		feedCacheService.evict(user.getId());
+
 		// Create notification for the followed user.
 		notificationService.createFollowNotification(user, toFollow);
 
@@ -83,9 +86,9 @@ public class FollowService {
 	 */
 
 	@Transactional
-	public ApiResponse<Void> unfollowUser(int id, HttpSession session) {
+	public ApiResponse<Void> unfollowUser(int id) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		User toUnfollow = getUserById(id);
 
@@ -99,6 +102,8 @@ public class FollowService {
 		userRepository.save(user);
 		userRepository.save(toUnfollow);
 
+		feedCacheService.evict(user.getId());
+
 		return new ApiResponse<>(true, "User unfollowed successfully");
 	}
 
@@ -107,9 +112,9 @@ public class FollowService {
 	 */
 
 	@Transactional(readOnly = true)
-	public ApiResponse<List<UserResponse>> getFollowers(HttpSession session) {
+	public ApiResponse<List<UserResponse>> getFollowers() {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		List<UserResponse> response = user.getFollowers().stream().map(UserMapper::toResponse).toList();
 
@@ -121,9 +126,9 @@ public class FollowService {
 	 */
 
 	@Transactional(readOnly = true)
-	public ApiResponse<List<UserResponse>> getFollowing(HttpSession session) {
+	public ApiResponse<List<UserResponse>> getFollowing() {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		List<UserResponse> response = user.getFollowing().stream().map(UserMapper::toResponse).toList();
 

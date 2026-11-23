@@ -13,7 +13,6 @@ import org.jsp.jsp_gram.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,34 +20,18 @@ import lombok.RequiredArgsConstructor;
 public class BookmarkService {
 
 	private final UserRepository userRepository;
+	private final CurrentUserService currentUserService;
+	private final FeedCacheService feedCacheService;
 	private final PostRepository postRepository;
-
-	/**
-	 * Returns the latest logged-in user from the database.
-	 */
-	private User getLoggedInUser(HttpSession session) {
-
-		User sessionUser = (User) session.getAttribute("user");
-
-		if (sessionUser == null) {
-			throw new AuthException("Not Logged In");
-		}
-
-		User user = userRepository.findById(sessionUser.getId()).orElseThrow(() -> new AuthException("User not found"));
-
-		session.setAttribute("user", user);
-
-		return user;
-	}
 
 	/**
 	 * Bookmark a post.
 	 */
 
 	@Transactional
-	public ApiResponse<PostResponse> bookmarkPost(int postId, HttpSession session) {
+	public ApiResponse<PostResponse> bookmarkPost(int postId) {
 
-		User user = getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Post post = postRepository.findById(postId).orElseThrow(() -> new AuthException("Post not found"));
 
@@ -58,6 +41,7 @@ public class BookmarkService {
 		if (!alreadyBookmarked) {
 			user.getBookmarkedPosts().add(post);
 			userRepository.save(user);
+			feedCacheService.evict(user.getId());
 		}
 
 		return new ApiResponse<>(true, alreadyBookmarked ? "Post already bookmarked" : "Post bookmarked successfully",
@@ -69,9 +53,9 @@ public class BookmarkService {
 	 */
 
 	@Transactional
-	public ApiResponse<PostResponse> unbookmarkPost(int postId, HttpSession session) {
+	public ApiResponse<PostResponse> unbookmarkPost(int postId) {
 
-		User user = getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Post post = postRepository.findById(postId).orElseThrow(() -> new AuthException("Post not found"));
 
@@ -79,6 +63,7 @@ public class BookmarkService {
 
 		if (removed) {
 			userRepository.save(user);
+			feedCacheService.evict(user.getId());
 		}
 
 		return new ApiResponse<>(true, removed ? "Post removed from bookmarks" : "Post was not bookmarked",
@@ -90,9 +75,9 @@ public class BookmarkService {
 	 */
 
 	@Transactional(readOnly = true)
-	public ApiResponse<List<PostResponse>> getBookmarks(HttpSession session) {
+	public ApiResponse<List<PostResponse>> getBookmarks() {
 
-		User user = getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		List<PostResponse> response = user.getBookmarkedPosts().stream().map(post -> PostMapper.toResponse(post, user))
 				.toList();

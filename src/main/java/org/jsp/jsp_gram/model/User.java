@@ -56,6 +56,12 @@ public class User {
 
 	private String gender;
 
+	/**
+	 * @deprecated OTPs are now stored in Redis (see OtpService). Kept only because
+	 *             the existing column is NOT NULL; drop both once the column is
+	 *             removed from the database.
+	 */
+	@Deprecated
 	private int otp;
 
 	private boolean verified;

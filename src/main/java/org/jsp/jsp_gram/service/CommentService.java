@@ -15,7 +15,6 @@ import org.jsp.jsp_gram.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +27,9 @@ public class CommentService {
 
 	private final PostRepository postRepository;
 
-	private final SessionService sessionService;
+	private final CurrentUserService currentUserService;
+
+	private final FeedCacheService feedCacheService;
 
 	private Post getPostById(int id) {
 
@@ -49,13 +50,11 @@ public class CommentService {
 
 			int postId,
 
-			CommentRequest request,
-
-			HttpSession session
+			CommentRequest request
 
 	) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Post post = getPostById(postId);
 
@@ -68,6 +67,8 @@ public class CommentService {
 		comment.setPost(post);
 
 		commentRepository.save(comment);
+
+		feedCacheService.evict(user.getId());
 
 		return new ApiResponse<>(
 
@@ -86,13 +87,11 @@ public class CommentService {
 	@Transactional(readOnly = true)
 	public ApiResponse<List<CommentResponse>> getComments(
 
-			int postId,
-
-			HttpSession session
+			int postId
 
 	) {
 
-		sessionService.getLoggedInUser(session);
+		currentUserService.getLoggedInUser();
 
 		Post post = getPostById(postId);
 
@@ -123,13 +122,11 @@ public class CommentService {
 	@Transactional
 	public ApiResponse<Void> deleteComment(
 
-			int commentId,
-
-			HttpSession session
+			int commentId
 
 	) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Comment comment = getCommentById(commentId);
 
@@ -140,6 +137,8 @@ public class CommentService {
 		}
 
 		commentRepository.delete(comment);
+
+		feedCacheService.evict(user.getId());
 
 		return new ApiResponse<>(
 

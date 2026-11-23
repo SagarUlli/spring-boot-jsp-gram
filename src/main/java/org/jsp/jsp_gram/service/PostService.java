@@ -15,7 +15,6 @@ import org.jsp.jsp_gram.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +27,9 @@ public class PostService {
 
 	private final PostRepository postRepository;
 
-	private final SessionService sessionService;
+	private final CurrentUserService currentUserService;
+
+	private final FeedCacheService feedCacheService;
 
 	private Post getPostById(int id) {
 
@@ -47,9 +48,9 @@ public class PostService {
 	}
 
 	@Transactional
-	public ApiResponse<PostResponse> createPostRest(PostRequest request, HttpSession session) {
+	public ApiResponse<PostResponse> createPostRest(PostRequest request) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Post post = new Post();
 
@@ -65,14 +66,25 @@ public class PostService {
 
 		post = postRepository.save(post);
 
+		feedCacheService.evictAuthorAndFollowers(user);
+
 		return new ApiResponse<>(true, "Post created successfully", PostMapper.toResponse(post, user));
 
 	}
 
 	@Transactional(readOnly = true)
-	public ApiResponse<List<PostResponse>> getFeed(HttpSession session) {
+	public ApiResponse<List<PostResponse>> getFeed() {
 
-		User user = sessionService.getLoggedInUser(session);
+		// Cache hit: answered from Redis without touching the database at all.
+		int userId = currentUserService.getCurrentUserId();
+
+		List<PostResponse> cached = feedCacheService.get(userId).orElse(null);
+
+		if (cached != null) {
+			return new ApiResponse<>(true, "Posts fetched successfully", cached);
+		}
+
+		User user = currentUserService.getLoggedInUser();
 
 		List<User> users = new ArrayList<>(user.getFollowing());
 
@@ -82,14 +94,16 @@ public class PostService {
 
 		List<PostResponse> response = posts.stream().map(post -> PostMapper.toResponse(post, user)).toList();
 
+		feedCacheService.put(userId, response);
+
 		return new ApiResponse<>(true, "Posts fetched successfully", response);
 
 	}
 
 	@Transactional(readOnly = true)
-	public ApiResponse<PostResponse> getPost(int id, HttpSession session) {
+	public ApiResponse<PostResponse> getPost(int id) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Post post = getPostById(id);
 
@@ -98,9 +112,9 @@ public class PostService {
 	}
 
 	@Transactional
-	public ApiResponse<PostResponse> updatePost(int id, PostRequest request, HttpSession session) {
+	public ApiResponse<PostResponse> updatePost(int id, PostRequest request) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Post post = getPostById(id);
 
@@ -116,20 +130,24 @@ public class PostService {
 
 		postRepository.save(post);
 
+		feedCacheService.evictAuthorAndFollowers(user);
+
 		return new ApiResponse<>(true, "Post updated successfully", PostMapper.toResponse(post, user));
 
 	}
 
 	@Transactional
-	public ApiResponse<Void> deletePost(int id, HttpSession session) {
+	public ApiResponse<Void> deletePost(int id) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Post post = getPostById(id);
 
 		validatePostOwner(post, user);
 
 		postRepository.delete(post);
+
+		feedCacheService.evictAuthorAndFollowers(user);
 
 		return new ApiResponse<>(true, "Post deleted successfully");
 
@@ -138,9 +156,9 @@ public class PostService {
 	// LIKE
 
 	@Transactional
-	public ApiResponse<PostResponse> likePost(int id, HttpSession session) {
+	public ApiResponse<PostResponse> likePost(int id) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Post post = getPostById(id);
 
@@ -152,6 +170,8 @@ public class PostService {
 
 		}
 
+		feedCacheService.evict(user.getId());
+
 		return new ApiResponse<>(true, "Post liked", PostMapper.toResponse(post, user));
 
 	}
@@ -159,15 +179,17 @@ public class PostService {
 	// UNLIKE
 
 	@Transactional
-	public ApiResponse<PostResponse> unlikePost(int id, HttpSession session) {
+	public ApiResponse<PostResponse> unlikePost(int id) {
 
-		User user = sessionService.getLoggedInUser(session);
+		User user = currentUserService.getLoggedInUser();
 
 		Post post = getPostById(id);
 
 		post.getLikedUsers().removeIf(u -> u.getId() == user.getId());
 
 		postRepository.save(post);
+
+		feedCacheService.evict(user.getId());
 
 		return new ApiResponse<>(true, "Post unliked", PostMapper.toResponse(post, user));
 
@@ -176,13 +198,15 @@ public class PostService {
 	// SHARE POST
 
 	@Transactional
-	public ApiResponse<PostResponse> sharePost(int id, HttpSession session) {
-		User currentUser = sessionService.getLoggedInUser(session);
+	public ApiResponse<PostResponse> sharePost(int id) {
+		User currentUser = currentUserService.getLoggedInUser();
 
 		Post post = postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
 
 		post.setShareCount(post.getShareCount() + 1);
 		post = postRepository.save(post);
+
+		feedCacheService.evict(currentUser.getId());
 
 		PostResponse response = PostMapper.toResponse(post, currentUser);
 

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,20 +21,20 @@ public class PaymentRestController {
 	private final PaymentService paymentService;
 
 	@PostMapping("/create-order")
-	public ApiResponse<PaymentResponse> createOrder(HttpSession session) throws Exception {
+	public ApiResponse<PaymentResponse> createOrder() throws Exception {
 
-		return paymentService.createOrder(session);
+		return paymentService.createOrder();
 	}
 
 	@PostMapping("/verify")
-	public ApiResponse<Void> verifyPayment(@RequestBody VerifyPaymentRequest request, HttpSession session) {
+	public ApiResponse<Void> verifyPayment(@RequestBody VerifyPaymentRequest request) {
 
-		return paymentService.verifyPayment(request, session);
+		return paymentService.verifyPayment(request);
 	}
 
 	@GetMapping("/status")
-	public ApiResponse<PaymentStatusResponse> getPaymentStatus(HttpSession session) {
+	public ApiResponse<PaymentStatusResponse> getPaymentStatus() {
 
-		return paymentService.getPaymentStatus(session);
+		return paymentService.getPaymentStatus();
 	}
 }

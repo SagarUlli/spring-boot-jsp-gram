@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,32 +22,32 @@ public class FollowRestController {
 	private final FollowService followService;
 
 	@GetMapping("/suggestions")
-	public ApiResponse<List<UserResponse>> getSuggestions(HttpSession session) {
+	public ApiResponse<List<UserResponse>> getSuggestions() {
 
-		return followService.getSuggestions(session);
+		return followService.getSuggestions();
 	}
 
 	@PostMapping("/{id}/follow")
-	public ApiResponse<Void> followUser(@PathVariable int id, HttpSession session) {
+	public ApiResponse<Void> followUser(@PathVariable int id) {
 
-		return followService.followUser(id, session);
+		return followService.followUser(id);
 	}
 
 	@DeleteMapping("/{id}/follow")
-	public ApiResponse<Void> unfollowUser(@PathVariable int id, HttpSession session) {
+	public ApiResponse<Void> unfollowUser(@PathVariable int id) {
 
-		return followService.unfollowUser(id, session);
+		return followService.unfollowUser(id);
 	}
 
 	@GetMapping("/followers")
-	public ApiResponse<List<UserResponse>> getFollowers(HttpSession session) {
+	public ApiResponse<List<UserResponse>> getFollowers() {
 
-		return followService.getFollowers(session);
+		return followService.getFollowers();
 	}
 
 	@GetMapping("/following")
-	public ApiResponse<List<UserResponse>> getFollowing(HttpSession session) {
+	public ApiResponse<List<UserResponse>> getFollowing() {
 
-		return followService.getFollowing(session);
+		return followService.getFollowing();
 	}
 }

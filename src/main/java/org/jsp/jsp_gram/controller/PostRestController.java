@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -29,58 +28,57 @@ public class PostRestController {
 	private final PostService postService;
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ApiResponse<PostResponse> createPost(@ModelAttribute PostRequest request, HttpSession session) {
+	public ApiResponse<PostResponse> createPost(@ModelAttribute PostRequest request) {
 
-		return postService.createPostRest(request, session);
+		return postService.createPostRest(request);
 
 	}
 
 	@GetMapping
-	public ApiResponse<List<PostResponse>> getFeed(HttpSession session) {
+	public ApiResponse<List<PostResponse>> getFeed() {
 
-		return postService.getFeed(session);
+		return postService.getFeed();
 
 	}
 
 	@GetMapping("/{id:\\d+}")
-	public ApiResponse<PostResponse> getPost(@PathVariable int id, HttpSession session) {
+	public ApiResponse<PostResponse> getPost(@PathVariable int id) {
 
-		return postService.getPost(id, session);
+		return postService.getPost(id);
 
 	}
 
 	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ApiResponse<PostResponse> updatePost(@PathVariable int id, @ModelAttribute PostRequest request,
-			HttpSession session) {
+	public ApiResponse<PostResponse> updatePost(@PathVariable int id, @ModelAttribute PostRequest request) {
 
-		return postService.updatePost(id, request, session);
+		return postService.updatePost(id, request);
 
 	}
 
 	@DeleteMapping("/{id}")
-	public ApiResponse<Void> deletePost(@PathVariable int id, HttpSession session) {
+	public ApiResponse<Void> deletePost(@PathVariable int id) {
 
-		return postService.deletePost(id, session);
+		return postService.deletePost(id);
 
 	}
 
 	@PostMapping("/{id}/like")
-	public ApiResponse<PostResponse> likePost(@PathVariable int id, HttpSession session) {
+	public ApiResponse<PostResponse> likePost(@PathVariable int id) {
 
-		return postService.likePost(id, session);
+		return postService.likePost(id);
 
 	}
 
 	@DeleteMapping("/{id}/like")
-	public ApiResponse<PostResponse> unlikePost(@PathVariable int id, HttpSession session) {
+	public ApiResponse<PostResponse> unlikePost(@PathVariable int id) {
 
-		return postService.unlikePost(id, session);
+		return postService.unlikePost(id);
 
 	}
 
 	@PostMapping("/{id}/share")
-	public ApiResponse<PostResponse> sharePost(@PathVariable int id, HttpSession session) {
-		return postService.sharePost(id, session);
+	public ApiResponse<PostResponse> sharePost(@PathVariable int id) {
+		return postService.sharePost(id);
 	}
 
 }
